@@ -1,0 +1,5436 @@
+/* ==========================================
+   SIN PO TV SECTION
+   ========================================== */
+.sinpo-tv-section {
+    background: linear-gradient(to bottom, #000000 70%, #FFFFFF 70%); /* Half Black Half White */
+    padding: 3rem 0;
+    margin-top: 3rem;
+    overflow: hidden;
+}
+
+body.dark-mode .sinpo-tv-section {
+    background: #000000;
+}
+
+.sinpo-tv-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.sinpo-tv-title {
+    font-family: 'Times New Roman', serif;
+    font-weight: 900;
+    font-size: 3rem;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+}
+
+/* Subtitle Removed/Hidden as per request */
+.sinpo-tv-subtitle {
+    display: none;
+}
+
+.sinpo-tv-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* TV Left: Main Video */
+.tv-main-video {
+    flex: 2;
+    min-width: 300px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+}
+
+.tv-video-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    display: block;
+    opacity: 1;
+}
+
+.tv-main-video:hover .tv-video-thumbnail {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+.tv-overlay-label {
+    position: absolute;
+    top: 2rem;
+    left: 2rem;
+    background: #FFFFFF;
+    color: #000000;
+    padding: 0.5rem 1rem;
+    font-weight: 900;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    transform: skew(-10deg);
+    z-index: 10;
+    box-shadow: 4px 4px 0px #D91B1B;
+}
+
+.tv-overlay-label span {
+    display: block;
+    transform: skew(10deg); /* Reset text skew */
+}
+
+/* Banner overlay inside video using absolute positioning to mimic the image */
+.tv-video-info-overlay {
+    position: absolute;
+    bottom: 2rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass through */
+    padding: 0 1rem;
+}
+
+.tv-headline-overlay {
+    display: inline-block;
+    /* Removed background box */
+    margin-top: 0;
+}
+
+.tv-headline-text {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.5); /* Strong shadow */
+    margin: 0;
+    line-height: 1.1;
+}
+
+/* Play Button Overlay */
+.tv-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(217, 27, 27, 0.4);
+    transition: transform 0.3s, background 0.3s;
+    z-index: 15;
+}
+
+.tv-play-btn svg {
+    width: 30px;
+    height: 30px;
+    fill: #D91B1B;
+    margin-left: 5px; /* Visual centering adjustment */
+}
+
+.tv-main-video:hover .tv-play-btn {
+    transform: translate(-50%, -50%) scale(1.1);
+    background: #FFFFFF;
+}
+
+/* TV Right: Playlist */
+.tv-playlist {
+    flex: 1;
+    min-width: 300px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.tv-playlist-header {
+    background: #0f4c81; /* Blue header purely based on user image perception or standard UI */
+    background: linear-gradient(to right, #0f4c81, #0a3a63);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+}
+
+.tv-header-info {
+    font-size: 0.8rem;
+    color: #a0c4e3;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+}
+
+.tv-header-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 200px;
+}
+
+.tv-playlist-items {
+    padding: 0;
+    overflow-y: auto;
+    max-height: 400px; /* Make it scrollable */
+}
+
+/* Scrollbar styling for playlist */
+.tv-playlist-items::-webkit-scrollbar {
+    width: 6px;
+}
+.tv-playlist-items::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+.tv-playlist-items::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+.tv-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tv-item:last-child {
+    border-bottom: none;
+}
+
+.tv-item:hover {
+    background: #252525;
+}
+
+.tv-item-thumb {
+    width: 120px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.tv-item-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.tv-item-title {
+    font-size: 0.9rem;
+    color: #fff;
+    line-height: 1.3;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-transform: uppercase;
+}
+
+.tv-item:hover .tv-item-title {
+    color: #D91B1B;
+}
+
+.tv-item-duration {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+/* Ad Banner */
+.tv-ad-banner {
+    margin-top: 2rem;
+    width: 100%;
+    background: #FFFFFF;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 4px;
+    flex-wrap: wrap;
+    gap: 1rem;
+    border: 1px solid #e5e7eb; /* Add border for white background */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+body.dark-mode .tv-ad-banner {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+.tv-ad-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tv-ad-size {
+    font-size: 1.5rem;
+    color: #ccc;
+    font-weight: 300;
+}
+
+.tv-ad-text {
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+body.dark-mode .tv-ad-text {
+    color: #fff;
+}
+
+.tv-ad-text span {
+    font-weight: 400;
+    color: #666;
+    font-size: 0.8rem;
+    display: block;
+    text-transform: none;
+}
+
+body.dark-mode .tv-ad-text span {
+    color: #aaa;
+}
+
+.tv-ad-btn {
+    background: #222;
+    color: #fff;
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+body.dark-mode .tv-ad-btn {
+    background: #fff;
+    color: #000;
+}
+
+.tv-ad-btn:hover {
+    background: #D91B1B;
+    color: #fff; /* Ensure text remains white on hover */
+}
+
+body.dark-mode .tv-ad-btn:hover {
+    background: #D91B1B;
+    color: #fff;
+}
+
+
+/* ==========================================
+   POLLING SECTION
+   ========================================== */
+.polling-section {
+    padding: 3rem 0;
+    background: var(--color-gray-50);
+}
+
+body.dark-mode .polling-section {
+    background: #111;
+}
+
+.polling-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.polling-main-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+}
+
+.polling-sub-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--color-black);
+    text-transform: uppercase;
+}
+
+body.dark-mode .polling-sub-title {
+    color: var(--color-white);
+}
+
+.polling-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    /* padding-bottom: 2rem; for scroll indicators space if needed */
+}
+
+.polling-card {
+    background: #F3F4F6; /* Slightly darker than white */
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    border-top: 4px solid transparent;
+    transition: transform 0.3s ease, border-top-color 0.3s ease;
+}
+
+body.dark-mode .polling-card {
+    background: var(--color-gray-800);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+.polling-card:hover {
+    transform: translateY(-5px);
+    border-top-color: var(--color-primary);
+}
+
+.polling-badge {
+    background: #ffecec;
+    color: var(--color-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    align-self: flex-start;
+    margin-bottom: 1rem;
+}
+
+body.dark-mode .polling-badge {
+    background: rgba(217, 27, 27, 0.2);
+}
+
+.polling-question {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-black);
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+    min-height: 3.5rem; /* Try to align cards height */
+}
+
+body.dark-mode .polling-question {
+    color: var(--color-white);
+}
+
+/* Polling Options */
+.polling-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.polling-option-label {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+body.dark-mode .polling-option-label {
+    border-color: var(--color-gray-700);
+}
+
+.polling-option-label:hover {
+    border-color: var(--color-primary);
+    background: var(--color-gray-50);
+}
+
+body.dark-mode .polling-option-label:hover {
+    background: var(--color-gray-700);
+}
+
+/* Hide default radio */
+.polling-radio {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Custom Checkbox/Radio UI */
+.polling-check {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-gray-300);
+    border-radius: 50%;
+    margin-right: 1rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.polling-option-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    flex: 1;
+}
+
+body.dark-mode .polling-option-text {
+    color: var(--color-gray-300);
+}
+
+/* Checked State */
+.polling-radio:checked + .polling-check {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+}
+
+.polling-radio:checked + .polling-check::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.polling-radio:checked ~ .polling-option-text {
+    color: var(--color-black);
+    font-weight: 700;
+}
+
+body.dark-mode .polling-radio:checked ~ .polling-option-text {
+    color: var(--color-white);
+}
+
+.polling-option-label.selected {
+    border-color: var(--color-primary);
+    background: rgba(217, 27, 27, 0.05);
+}
+
+.polling-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-gray-100);
+}
+
+body.dark-mode .polling-footer {
+    border-top-color: var(--color-gray-700);
+}
+
+.polling-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-gray-500);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.polling-submit-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.polling-submit-btn:disabled {
+    background: var(--color-gray-300);
+    cursor: not-allowed;
+    color: var(--color-gray-500);
+}
+
+body.dark-mode .polling-submit-btn:disabled {
+    background: var(--color-gray-700);
+    color: var(--color-gray-500);
+}
+
+
+.polling-submit-btn:not(:disabled):hover {
+    background: #b91515;
+}
+
+.polling-pagination {
+    display: none;
+}
+
+
+
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .polling-section {
+        padding: 2rem 0;
+    }
+
+    .polling-sub-title {
+        font-size: 1.8rem;
+    }
+
+    /* Mobile Horizontal Swipe */
+    .polling-container {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1rem;
+        padding-bottom: 2rem;
+        margin: 0 -1rem; /* Negative margin to go edge to edge */
+        padding-left: 1rem; /* Restore padding */
+        padding-right: 1rem;
+        -webkit-overflow-scrolling: touch;
+        /* Hide scrollbar */
+        scrollbar-width: none; 
+        -ms-overflow-style: none;
+    }
+    
+    .polling-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .polling-card {
+        flex: 0 0 calc(100vw - 3rem); /* Full width minus margin */
+        width: calc(100vw - 3rem);
+        scroll-snap-align: center;
+        margin-right: 0;
+        border-top: none; /* Simplify on mobile */
+        border-right: 4px solid transparent; /* Side highlight maybe? */
+    }
+    
+    .polling-card:hover {
+        transform: none;
+    }
+
+    .polling-pagination {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .polling-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--color-gray-300);
+        border-radius: 50%;
+        transition: background 0.3s;
+    }
+
+    .polling-dot.active {
+        background: var(--color-primary);
+        width: 20px;
+        border-radius: 99px;
+    }
+
+    .sinpo-tv-section {
+
+        background: #000000; /* Full black on specific breakpoints if needed, or keep gradient */
+        background: linear-gradient(to bottom, #000000 65%, #FFFFFF 65%);
+    }
+
+    .sinpo-tv-container {
+        flex-direction: column;
+    }
+    .tv-main-video {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    .tv-playlist {
+        width: 100%;
+    }
+    .tv-playlist-items {
+        max-height: 300px;
+    }
+
+    /* Mobile Adjustments */
+    .tv-overlay-label {
+        font-size: 1rem; /* Smaller text */
+        padding: 0.3rem 0.6rem;
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .tv-headline-text {
+        font-size: 1.2rem; /* Smaller headline */
+    }
+
+    .tv-ad-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .tv-ad-content {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary: #D91B1B;
+    --color-black: #0A0A0A;
+    --color-white: #FFFFFF;
+    --color-gray-50: #F9FAFB;
+    --color-gray-100: #F3F4F6;
+    --color-gray-200: #E5E7EB;
+    --color-gray-300: #D1D5DB;
+    --color-gray-400: #9CA3AF;
+    --color-gray-500: #6B7280;
+    --color-gray-600: #4B5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1F2937;
+    --color-gray-900: #111827;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--color-white);
+    color: var(--color-black);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.5;
+}
+
+body.dark-mode {
+    background: var(--color-black);
+    color: var(--color-white);
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ==========================================
+   HEADER STYLES
+   ========================================== */
+
+header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+body.dark-mode header {
+    background: var(--color-black);
+    border-bottom-color: var(--color-gray-800);
+}
+
+/* Header Top Bar */
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    position: relative;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+body.dark-mode .header-top {
+    border-bottom-color: var(--color-gray-800);
+}
+
+/* Header Left: TV Button + Socials */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.btn-tv {
+    background: black;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.05em;
+}
+
+.btn-tv .dot {
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.header-socials {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.header-socials a {
+    color: var(--color-black);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+body.dark-mode .header-socials a {
+    color: var(--color-white);
+}
+
+.header-socials a:hover {
+    color: var(--color-primary);
+}
+
+/* Header Center: Logo */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.logo-new {
+    text-decoration: none;
+    font-family: 'Times New Roman', serif;
+    font-weight: 900;
+    font-size: 3.5rem; /* Large logo size */
+    line-height: 1;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: baseline;
+}
+
+.sinpo-text {
+    color: #D91B1B; /* Red color from image */
+}
+
+.id-text {
+    color: black;
+    font-size: 3.5rem;
+}
+
+body.dark-mode .id-text {
+    color: white;
+}
+
+/* Header Right: Search + Theme */
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 2. Pastikan Search Bar Lama Muncul di Desktop */
+.search-bar {
+    display: block; /* Default muncul */
+    position: relative;
+    margin-right: 1rem;
+}
+
+/* Style input lama (jika belum ada/terhapus) */
+.search-bar input {
+    background: #F9FAFB;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 9999px;
+    width: 200px;
+    font-size: 0.9rem;
+    color: var(--color-gray-700);
+    outline: none;
+    transition: width 0.3s;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+body.dark-mode .search-bar input {
+    background: var(--color-gray-800);
+    color: var(--color-gray-200);
+}
+
+.search-bar input:focus {
+    width: 250px;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--color-gray-200);
+}
+
+body.dark-mode .search-bar input:focus {
+    background: var(--color-gray-900);
+    box-shadow: 0 0 0 2px var(--color-gray-700);
+}
+
+/* --- 1. TAMPILAN DEFAULT (DESKTOP & TABLET - KAPSUL) --- */
+.theme-toggle-new {
+    background: #E5E7EB;       /* Warna Background Kapsul */
+    width: 3.5rem;             /* Lebar Kapsul */
+    height: 1.8rem;            /* Tinggi Kapsul */
+    border-radius: 9999px;     /* Bentuk Bulat Panjang */
+    position: relative;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 2px;              /* Jarak bola dari pinggir */
+    transition: background 0.3s;
+}
+
+/* Knob (Bola Putih di dalam kapsul) */
+.theme-knob {
+    background: white;
+    width: 1.6rem;             /* Ukuran Bola */
+    height: 1.6rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s, background 0.3s;
+    transform: translateX(0);  /* Posisi Awal (Kiri) */
+}
+
+/* Ukuran Icon di Desktop (Kecil agar muat di bola) */
+.theme-toggle-new svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--color-black);
+}
+
+/* --- STATE DARK MODE (DESKTOP) --- */
+body.dark-mode .theme-toggle-new {
+    background: var(--color-gray-700); /* Background Kapsul jadi Gelap */
+}
+
+body.dark-mode .theme-knob {
+    transform: translateX(1.7rem);     /* Bola geser ke Kanan */
+    background: var(--color-black);    /* Bola jadi hitam */
+}
+
+body.dark-mode .theme-toggle-new svg {
+    stroke: var(--color-white);        /* Icon jadi putih */
+}
+
+/* --- LOGIKA ICON CHANGE (Sun vs Moon) --- */
+.icon-sun { display: none; }
+.icon-moon { display: block; }
+
+body.dark-mode .icon-sun { display: block; }
+body.dark-mode .icon-moon { display: none; }
+
+#theme-icon-new {
+    font-size: 0.8rem;
+    background: white;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark-mode #theme-icon-new {
+    background: var(--color-black);
+}
+
+/* Header Bottom: Navigation Bar */
+.header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    font-size: 0.85rem;
+}
+
+.date-display {
+    color: var(--color-gray-500);
+    font-weight: 500;
+    font-size: 0.8rem;
+    min-width: 180px;
+}
+
+.nav-main-new {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.nav-list-new {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-list-new li a {
+    text-decoration: none;
+    color: var(--color-black);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+}
+
+body.dark-mode .nav-list-new li a {
+    color: var(--color-gray-300);
+}
+
+.nav-list-new li a:hover {
+    color: var(--color-primary);
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 80px;
+    justify-content: flex-end;
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.2s;
+    cursor: pointer;
+}
+
+.user-avatar-small:hover {
+    filter: grayscale(0);
+}
+
+.menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-black);
+    display: flex;
+    align-items: center;
+}
+
+/* 1. DEFAULT (DESKTOP/TABLET) - Hide Mobile Elements */
+.menu-btn-mobile {
+    display: none; /* Tombol menu atas disembunyikan di desktop */
+}
+
+body.dark-mode .menu-btn {
+    color: var(--color-white);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .header-top {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .header-left, .header-center, .header-right {
+        width: 100%;
+        justify-content: center;
+    }
+    .nav-list-new {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .header-bottom {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .date-display {
+        text-align: center;
+    }
+}
+
+/* ==========================================
+   LOADING & ERROR STATES
+   ========================================== */
+/* Full Screen Loading Overlay */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--color-white);
+    z-index: 9999;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+body.dark-mode .loading {
+    background: var(--color-black);
+}
+
+/* Hide Header & Footer when Loading */
+body.is-loading header,
+body.is-loading footer,
+body.is-loading main > .container:not(.loading) {
+    display: none !important;
+}
+
+/* Spinner Styles */
+.spinner {
+    width: 4rem;
+    height: 4rem;
+    border: 4px solid var(--color-gray-200);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+}
+
+body.dark-mode .spinner {
+    border-color: var(--color-gray-800);
+    border-top-color: var(--color-primary);
+}
+
+.loading p {
+    font-weight: 600;
+    color: var(--color-gray-600);
+    animation: pulse 1.5s infinite;
+}
+
+body.dark-mode .loading p {
+    color: var(--color-gray-400);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.error-container {
+    text-align: center;
+    padding: 4rem 1rem;
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: var(--color-gray-500);
+    margin-bottom: 2rem;
+}
+
+.empty-state {
+    padding: 3rem 0;
+    color: var(--color-gray-500);
+    font-style: italic;
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+.hero {
+    position: relative;
+    min-height: 600px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) brightness(0.5) contrast(1.25);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4), transparent);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
+    color: white;
+    padding: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.hero-title:hover {
+    color: var(--color-primary);
+}
+
+.hero-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ==========================================
+   HOME LAYOUT
+   ========================================== */
+.home-content {
+    margin-top: 2rem;
+}
+
+.home-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 5rem;
+    margin-bottom: 4rem;
+}
+
+.home-main {
+    min-width: 0;
+}
+
+.home-sidebar {
+    order: -1;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+    background: var(--color-gray-50);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+body.dark-mode .home-sidebar {
+    background: var(--color-gray-900);
+}
+
+.sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.025em;
+}
+
+/* Popular Items */
+.popular-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.popular-item {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    transition: opacity 0.3s;
+}
+
+body.dark-mode .popular-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.popular-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.popular-item:hover {
+    opacity: 0.8;
+}
+
+.popular-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-gray-300);
+    min-width: 2rem;
+}
+
+body.dark-mode .popular-number {
+    color: var(--color-gray-700);
+}
+
+.popular-item:hover .popular-number {
+    color: var(--color-primary);
+}
+
+.popular-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.popular-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+.popular-item:hover .popular-title {
+    color: var(--color-primary);
+}
+
+.popular-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+}
+
+/* ==========================================
+   NEWS GRID
+   ========================================== */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.news-card {
+    cursor: pointer;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+}
+
+.news-card-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
+}
+
+.news-card:hover .news-card-image {
+    transform: scale(1.05);
+}
+
+.news-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-card-category {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.news-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    color: var(--color-black);
+    transition: color 0.3s;
+}
+
+body.dark-mode .news-card-title {
+    color: var(--color-white);
+}
+
+.news-card:hover .news-card-title {
+    color: var(--color-primary);
+}
+
+.news-card-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: auto;
+}
+
+/* ==========================================
+   ARTICLE DETAIL
+   ========================================== */
+.article-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.article-detail {
+    max-width: 800px;
+    margin: 0 auto 4rem;
+}
+
+.article-title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.025em;
+}
+
+.article-meta {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+    color: var(--color-gray-500);
+    flex-wrap: wrap;
+    font-weight: 600;
+}
+
+body.dark-mode .article-meta {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.article-image {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.image-credit {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    font-style: italic;
+    margin-bottom: 2rem;
+}
+
+.article-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--color-gray-800);
+}
+
+body.dark-mode .article-content {
+    color: var(--color-gray-200);
+}
+
+.article-content p {
+    margin-bottom: 1.5rem;
+}
+
+.article-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+}
+
+.article-content h2,
+.article-content h3 {
+    font-weight: 900;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.article-content blockquote {
+    border-left: 4px solid var(--color-primary);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: var(--color-gray-600);
+}
+
+body.dark-mode .article-content blockquote {
+    color: var(--color-gray-400);
+}
+
+.article-tags {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .article-tags {
+    border-top-color: var(--color-gray-800);
+}
+
+.tag {
+    display: inline-block;
+    background: var(--color-gray-100);
+    color: var(--color-gray-700);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+body.dark-mode .tag {
+    background: var(--color-gray-800);
+    color: var(--color-gray-300);
+}
+
+/* ==========================================
+   COMMENT SECTION
+   ========================================== */
+.comment-section {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding-top: 3rem;
+    border-top: 2px solid var(--color-gray-200);
+}
+
+body.dark-mode .comment-section {
+    border-top-color: var(--color-gray-800);
+}
+
+.comment-form {
+    background: var(--color-gray-50);
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 3rem;
+}
+
+body.dark-mode .comment-form {
+    background: var(--color-gray-900);
+}
+
+.comment-form h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-gray-300);
+    border-radius: 0.375rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    background: var(--color-white);
+    color: var(--color-black);
+    transition: border-color 0.3s;
+}
+
+body.dark-mode .form-input,
+body.dark-mode .form-textarea {
+    background: var(--color-black);
+    color: var(--color-white);
+    border-color: var(--color-gray-700);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Comments List */
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.comment-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--color-gray-50);
+    border-radius: 0.5rem;
+}
+
+body.dark-mode .comment-item {
+    background: var(--color-gray-900);
+}
+
+.comment-avatar {
+    font-size: 2rem;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gray-200);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+body.dark-mode .comment-avatar {
+    background: var(--color-gray-800);
+}
+
+.comment-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+}
+
+.comment-text {
+    line-height: 1.6;
+    color: var(--color-gray-700);
+}
+
+body.dark-mode .comment-text {
+    color: var(--color-gray-300);
+}
+
+/* ==========================================
+   AUTHOR PAGE
+   ========================================== */
+.author-page {
+    padding: 3rem 1rem;
+}
+
+.author-header {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: var(--color-gray-50);
+    border-radius: 0.5rem;
+}
+
+body.dark-mode .author-header {
+    background: var(--color-gray-900);
+}
+
+.author-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--color-white);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .author-avatar {
+    border-color: var(--color-gray-800);
+}
+
+.author-info {
+    flex: 1;
+}
+
+.author-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.author-badge {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.author-bio {
+    color: var(--color-gray-600);
+    line-height: 1.6;
+    font-style: italic;
+}
+
+body.dark-mode .author-bio {
+    color: var(--color-gray-400);
+}
+
+/* ==========================================
+   GALLERY PAGE
+   ========================================== */
+.gallery-page {
+    padding: 3rem 1rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.photo-card {
+    position: relative;
+    aspect-ratio: 4/3;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.photo-card:hover {
+    transform: translateY(-4px);
+}
+
+.photo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.photo-card:hover .photo-image {
+    transform: scale(1.1);
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.photo-card:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-title {
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.gallery-collections {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-card {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.gallery-card:hover {
+    transform: translateY(-4px);
+}
+
+.gallery-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.gallery-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+
+/* ==========================================
+   CATEGORY PAGE
+   ========================================== */
+.category-title {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+footer {
+    background: var(--color-black);
+    color: white;
+    padding: 5rem 0 2.5rem;
+    border-top: 2px solid rgba(217, 27, 27, 0.5);
+}
+
+.footer-content {
+    display: grid;
+    /* Adjusted columns: Logo Area (wider) | Saluran | Perusahaan | Sosmed */
+    grid-template-columns: 2fr 1fr 1fr 1fr; 
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media (max-width: 900px) {
+    .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.footer-logo {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--color-primary);
+    font-family: 'Times New Roman', Times, serif;
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+    white-space: nowrap;
+}
+
+.footer-address {
+    color: var(--color-gray-400);
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    line-height: 1.6;
+}
+
+.footer-heading {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: var(--color-gray-400);
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-gray-800);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+    }
+}
+
+.footer-copyright {
+    font-size: 0.625rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.footer-bottom-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.footer-bottom-links a {
+    font-size: 0.625rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-bottom-links a:hover {
+    color: white;
+}
+
+/* ==========================================
+   BUTTON STYLES
+   ========================================== */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(217, 27, 27, 0.2);
+}
+
+.btn-primary:hover {
+    background: #B71616;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(217, 27, 27, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: var(--color-gray-200);
+    color: var(--color-black);
+}
+
+body.dark-mode .btn-secondary {
+    background: var(--color-gray-800);
+    color: var(--color-white);
+}
+
+.btn-secondary:hover {
+    background: var(--color-gray-300);
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: var(--color-gray-700);
+}
+
+/* ==========================================
+   UTILITY CLASSES
+   ========================================== */
+.hidden {
+    display: none !important;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    margin-bottom: 2rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-8 {
+    margin-bottom: 2rem;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE
+   ========================================== */
+@media (max-width: 1024px) {
+    .home-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-sidebar {
+        position: static;
+        order: initial;
+    }
+}
+
+/* ==========================================
+   SEARCH ICON & FULLSCREEN MODAL
+   ========================================== */
+
+/* 1. Style Tombol Search di Header */
+.btn-search-trigger {
+    display: none; /* Default hilang */
+}
+
+.btn-search-trigger:hover {
+    background: var(--color-gray-100);
+    color: var(--color-primary);
+}
+
+body.dark-mode .btn-search-trigger {
+    color: var(--color-white);
+}
+
+body.dark-mode .btn-search-trigger:hover {
+    background: var(--color-gray-800);
+}
+
+/* --- STYLE MODAL FULLSCREEN (Hanya Dipakai Mobile) --- */
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.98);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 100px;
+    opacity: 1;
+    transition: opacity 0.3s ease, visibility 0.3s;
+    visibility: visible;
+}
+
+body.dark-mode .search-overlay {
+    background-color: rgba(10, 10, 10, 0.98);
+}
+
+.search-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.close-search-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-500);
+}
+
+.search-container-full {
+    width: 85%;
+    text-align: center;
+}
+
+#fullscreen-search-input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--color-gray-300);
+    background: transparent;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 10px 0;
+    color: var(--color-black);
+    outline: none;
+    text-align: center;
+}
+
+body.dark-mode #fullscreen-search-input {
+    color: var(--color-white);
+    border-bottom-color: var(--color-gray-700);
+}
+
+#fullscreen-search-input::placeholder {
+    color: var(--color-gray-400);
+    font-weight: 400;
+}
+
+#fullscreen-search-input:focus {
+    border-bottom-color: var(--color-primary);
+}
+
+.search-hint {
+    margin-top: 1rem;
+    color: var(--color-gray-500);
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE LAYOUT (Full 768px)
+   ========================================== */
+
+/* Definisi Animasi Fade In */
+@keyframes fadeInIcon {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 768px) {
+
+    /* --- 1. HEADER TOP LAYOUT --- */
+    .header-top {
+        flex-direction: row !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        gap: 0;
+        position: relative;
+    }
+
+    /* --- 2. BAGIAN KIRI (TV Label) --- */
+    .header-left {
+        width: auto !important;
+        flex: 0 0 auto;
+        justify-content: flex-start !important;
+    }
+
+    .header-socials { display: none !important; }
+
+    .btn-tv {
+        padding: 0.3rem 0.3rem;
+        font-size: 0.50rem;
+    }
+
+    /* --- 3. BAGIAN TENGAH (Logo) --- */
+    .header-center {
+        flex: 1;
+        display: flex;
+        justify-content: center !important;
+        align-items: center;
+        width: auto !important;
+        padding: 0 5px;
+    }
+
+    .logo-new { font-size: 2rem !important; }
+    .logo-new .id-text { font-size: 2rem !important; }
+
+    /* --- 4. BAGIAN KANAN (Icons Group) --- */
+    .header-right {
+        width: auto !important;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px; /* Jarak antar icon */
+    }
+
+    /* --- 5. LOGIKA ELEMENT (SHOW/HIDE) --- */
+    .search-bar { display: none !important; }
+
+    .btn-search-trigger {
+        display: flex !important;
+        justify-content: center;   /* horizontal center */
+        align-items: center;       /* vertical center */
+        padding: 6px;
+        background: transparent;
+        border: none;
+        width: 26px;
+        height: 26px;
+        color: var(--color-black);
+    }
+
+    .menu-btn-mobile {
+        display: flex !important;
+        padding: 6px;
+        background: transparent;
+        border: none;
+        color: var(--color-black);
+        margin-left: 1px;
+    }
+
+    /* --- 6. FIX TOGGLE THEME MOBILE (FADE ANIMATION) --- */
+    
+    /* Reset Container Tombol */
+    .theme-toggle-new {
+        background: transparent !important; /* Hapus background kapsul */
+        width: auto !important;             /* Hapus lebar kapsul */
+        height: auto !important;
+        padding: 6px !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 50% !important;
+        transform: none !important;         /* Matikan skala desktop jika ada */
+        overflow: visible !important;
+    }
+
+    /* Reset Bola/Knob (INI YANG PENTING AGAR TIDAK GESER) */
+    .theme-knob {
+        background: transparent !important; /* Hapus bola putih */
+        width: auto !important;
+        height: auto !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        /* MATIKAN ANIMASI GESER (SLIDING) */
+        transform: none !important;
+        transition: none !important; 
+    }
+
+    /* Override state Dark Mode agar tidak geser */
+    body.dark-mode .theme-knob {
+        transform: none !important;
+        background: transparent !important;
+    }
+
+    /* Style Icon Mobile */
+    .theme-toggle-new svg {
+        width: 16px !important;
+        height: 16px !important;
+        stroke: var(--color-black);
+        
+        /* ANIMASI FADE: Setiap kali icon muncul, jalankan keyframe */
+        animation: fadeInIcon 0.4s ease-out forwards;
+    }
+
+    body.dark-mode .theme-toggle-new svg {
+        stroke: var(--color-white);
+    }
+    
+    body.dark-mode .btn-search-trigger,
+    body.dark-mode .menu-btn-mobile {
+        color: var(--color-white);
+    }
+
+    /* --- 7. HEADER BOTTOM (Date, User, Bottom Menu) --- */
+    .date-display { display: none !important; }
+    .header-bottom .user-actions { display: none !important; }
+
+    /* --- 8. NAVIGASI (Tengah & Wrap) --- */
+    .header-bottom {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 10px;
+    }
+
+    .nav-main-new {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .nav-list-new {
+        display: flex !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 10px 15px !important;
+        overflow-x: visible !important;
+        padding: 0 10px !important;
+        width: 100%;
+        margin: 0;
+    }
+    
+    .nav-list-new li { text-align: center; }
+    
+    .nav-list-new li a {
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .hero-content {
+        padding: 1rem;
+    }
+
+    .comment-item {
+        flex-direction: column;
+    }
+
+    .comment-avatar {
+        align-self: flex-start;
+    }
+}
+
+/* ==========================================
+   FEATURED SECTION (NEW LAYOUT)
+   ========================================== */
+.featured-section {
+    margin: 2rem 0 3rem;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+    min-height: 600px;
+}
+
+/* Main Featured (Left) */
+.featured-main {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.featured-main:hover {
+    transform: scale(1.02);
+}
+
+.featured-main-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7);
+    transition: filter 0.3s;
+}
+
+.featured-main:hover .featured-main-image {
+    filter: brightness(0.85);
+}
+
+.featured-main-overlay {
+    position: absolute;
+    inset: 0;
+    /* Default gradient for desktop */
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+}
+
+/* --- MOBILE SPECIFIC ELEMENTS (HIDDEN ON DESKTOP) --- */
+.mobile-meta-row {
+    display: none;
+}
+
+/* Wrapper background merah (Desktop Only) */
+.featured-main-content-wrapper {
+    background: var(--color-primary);
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+}
+
+.featured-main-author {
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    opacity: 0.9;
+}
+
+.featured-main-title {
+    color: white;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+}
+
+.featured-main-meta {
+    display: flex;
+    flex-direction: row;       
+    justify-content: space-between; 
+    align-items: center;       
+    flex-wrap: nowrap;         
+    gap: 1rem;                 
+
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* --- MOBILE STYLES (Overrides) --- */
+@media (max-width: 768px) {
+    /* 0. Section Spacing Adjustments */
+    .featured-section {
+        margin-top: 0;      /* Touch the header */
+        margin-bottom: 4rem; /* "Beri jarak bagian bawah kontennya" */
+    }
+
+    .featured-grid {
+        min-height: auto; /* Allow auto height */
+        display: block;   /* Stack them */
+    }
+
+    /* 1. Portrait 4:3 Aspect Ratio (approx 3/4) & No Radius */
+    .featured-main {
+        aspect-ratio: 3/4; /* "Agak sedikit portrait" */
+        border-radius: 0;
+        margin-left: -1rem;  /* Bleed to edge if container has padding */
+        margin-right: -1rem; /* Bleed to edge */
+        width: calc(100% + 2rem);
+    }
+
+    .featured-main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* 2. Gradient Overlay for Shadow Effect inside bottom */
+    .featured-main-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.6) 40%, transparent 100%);
+        padding: 1.5rem;
+        justify-content: flex-end;
+    }
+
+    /* 3. Transparent Wrapper */
+    .featured-main-content-wrapper {
+        background: transparent !important;
+        padding: 0;
+        align-items: center;
+        width: 100%;
+    }
+    
+    /* 4. Hide Desktop Meta Elements */
+    .featured-main-author, 
+    .featured-main-meta {
+        display: none !important; 
+    }
+
+    /* 5. Mobile Meta Row */
+    .mobile-meta-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr; /* Left, Center, Right */
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1rem; /* Space above title */
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: white;
+    }
+
+    /* Left: Publisher */
+    .mobile-author {
+        text-align: left;
+        opacity: 0.9;
+    }
+
+    /* Center: Category (Red Background) */
+    .mobile-category {
+        background: var(--color-primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        font-weight: 900;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        justify-self: center; /* Center in grid cell */
+    }
+
+    /* Right: Date */
+    .mobile-date {
+        text-align: right;
+        opacity: 0.9;
+    }
+
+    /* 6. Title: Bottom Center */
+    .featured-main-title {
+        text-align: center;
+        margin-bottom: 0;
+        font-size: 1.75rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        line-height: 1.2;
+    }
+
+    /* 7. Hide Sidebars on Mobile */
+    .home-sidebar,
+    .featured-side {
+        display: none !important; 
+    }
+}
+
+/* Featured Side (Right) */
+.featured-side {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.featured-secondary {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    height: 280px;
+    transition: transform 0.3s;
+}
+
+.featured-secondary:hover {
+    transform: translateY(-4px);
+}
+
+.featured-secondary-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.75);
+    transition: filter 0.3s;
+}
+
+.featured-secondary:hover .featured-secondary-image {
+    filter: brightness(0.9);
+}
+
+.featured-secondary-overlay {
+    position: absolute;
+    inset: 0;
+    /* Gunakan gradient yang lebih pekat di bawah agar teks terbaca jelas */
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 40%, transparent 100%);
+    padding: 2rem; /* Jarak dari pinggir gambar */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transform: translateY(100%);
+    transition: transform 0.4s ease-in-out;
+}
+
+.featured-secondary:hover .featured-secondary-overlay {
+    transform: translateY(0);
+}
+
+.featured-secondary-title {
+    margin-bottom: 0.5rem;
+    /* Hapus background merah inline sebelumnya jika ingin tampilan lebih bersih */
+    background: transparent; 
+    padding: 0;
+    box-decoration-break: slice;
+    -webkit-box-decoration-break: slice;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.featured-secondary-meta {
+    display: flex;
+    flex-direction: row;              /* tetap horizontal */
+    justify-content: space-between;   /* kiri-kanan */
+    align-items: flex-start;          /* biar bagian kanan bisa multi-line */
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Style untuk Tanggal (Kiri) */
+.meta-date {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    white-space: nowrap;              /* cegah tanggal pecah baris */
+}
+
+/* Style untuk Foto Credit (Kanan) */
+.meta-credit {
+    text-align: right;
+    font-style: italic;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    white-space: normal;              /* biarkan bisa turun ke bawah */
+    word-break: break-word;           /* pecah kata panjang kalau perlu */
+    max-width: 60%;                   /* batasi lebar agar bisa wrap */
+}
+
+/* Style untuk Dot Pembatas */
+.meta-dot {
+    color: var(--color-primary);      /* Titik warna Merah */
+    font-weight: bold;
+    font-size: 1.2rem;
+    line-height: 0;
+}
+
+
+/* Featured List */
+.featured-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.featured-list-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+    background: var(--color-gray-50);
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+}
+
+body.dark-mode .featured-list-item {
+    background: var(--color-gray-900);
+}
+
+.featured-list-item:hover {
+    background: var(--color-gray-100);
+    transform: translateX(4px);
+}
+
+body.dark-mode .featured-list-item:hover {
+    background: var(--color-gray-800);
+}
+
+.featured-list-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    flex-shrink: 0;
+}
+
+.featured-list-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.featured-list-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.featured-list-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .featured-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .featured-secondary {
+        height: 250px;
+    }
+}
+
+/* ==========================================
+   TIMELINE NEWS STYLE (SESUAI GAMBAR)
+   ========================================== */
+.timeline-container {
+    position: relative;
+    padding-left: 20px; /* Ruang untuk garis */
+    max-width: 900px; /* Membatasi lebar agar mirip gambar */
+}
+
+/* Garis Vertikal Abu-abu */
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--color-gray-200);
+}
+
+body.dark-mode .timeline-container::before {
+    background-color: var(--color-gray-800);
+}
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-left: 1.5rem; /* Jarak dari garis ke konten */
+}
+
+/* Titik (Dot) pada Timeline */
+.timeline-marker {
+    position: absolute;
+    left: -25px; /* Mengatur posisi titik pas di garis */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-gray-300);
+    border-radius: 50%;
+    border: 3px solid var(--color-white); /* Efek bolong */
+    z-index: 1;
+}
+
+body.dark-mode .timeline-marker {
+    background-color: var(--color-gray-600);
+    border-color: var(--color-black);
+}
+
+.timeline-item:hover .timeline-marker {
+    background-color: var(--color-primary);
+}
+
+/* Gambar Thumbnail (Kiri) */
+.timeline-image-wrapper {
+    flex-shrink: 0;
+    width: 240px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.timeline-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.timeline-item:hover .timeline-image {
+    transform: scale(1.05);
+}
+
+/* Konten (Kanan) */
+.timeline-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Header: Avatar, Nama, Tanggal */
+.timeline-meta-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;               /* Standard gap */
+    margin-top: 1rem;          /* jarak ke bawah dari elemen sebelumnya */
+    margin-bottom: 0.5rem;     /* jarak ke elemen sesudahnya */
+    font-size: 0.75rem;        /* Desktop Base Size */
+    color: var(--color-gray-500);
+}
+
+.timeline-author {
+    color: var(--color-gray-500);
+}
+
+.timeline-dot {
+    color: var(--color-gray-400);
+}
+
+.timeline-date {
+    color: var(--color-gray-500);
+}
+
+.timeline-author-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.timeline-title {
+    font-size: 1.25rem;
+    font-weight: 800; /* Bold tebal seperti gambar */
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin: 0;
+    transition: color 0.2s;
+    cursor: pointer; /* Ensure pointer on title */
+}
+
+/* Category above title */
+.timeline-category {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+body.dark-mode .timeline-title {
+    color: var(--color-white);
+}
+
+.timeline-item:hover .timeline-title {
+    color: var(--color-primary);
+}
+
+/* Load More Button */
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+    padding-left: 20px; /* Kompensasi padding container */
+}
+
+.btn-load-more {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-gray-300);
+    color: var(--color-gray-700);
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.dark-mode .btn-load-more {
+    background-color: var(--color-gray-900);
+    border-color: var(--color-gray-700);
+    color: var(--color-gray-300);
+}
+
+.btn-load-more:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* Mobile Responsive untuk Timeline */
+@media (max-width: 768px) {
+    .timeline-item {
+        flex-direction: column;
+        gap: 1rem;
+        padding-left: 0;
+    }
+    
+    .timeline-image-wrapper {
+        width: 100%;
+        height: 200px;
+    }
+
+    /* Hide Timeline Elements on Mobile */
+    .timeline-container {
+        padding-left: 0;
+    }
+
+    .timeline-container::before {
+        display: none;
+    }
+
+    .timeline-marker {
+        display: none;
+    }
+}
+
+/* ==========================================
+   SIDEBAR "TDK KALAH PENTING" (Black Style)
+   ========================================== */
+
+/* Container Utama Sidebar Hitam */
+.sidebar-must-read {
+    background-color: #000000;
+    padding: 1.5rem;
+    border-radius: 4px;
+    color: #ffffff;
+    margin-bottom: 2rem;
+}
+
+/* Judul Utama: TDK KALAH PENTING */
+.must-read-header {
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #D91B1B; /* Garis merah di bawah judul */
+    letter-spacing: 0.05em;
+}
+
+/* Item Wrapper */
+.must-read-item {
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+}
+
+/* Kategori Kecil (POJOK SIN PO) */
+.cat-small {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Kategori Besar Merah (BONGKAR) */
+.cat-large-red {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #ff0000; /* Merah terang */
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    display: block;
+    letter-spacing: -0.02em;
+}
+
+/* Gambar Thumbnail Sidebar */
+.must-read-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    margin-bottom: 0.8rem;
+    filter: brightness(0.9);
+    transition: filter 0.3s;
+}
+
+.must-read-item:hover .must-read-img {
+    filter: brightness(1.1);
+}
+
+/* Judul Berita di Sidebar Hitam */
+.must-read-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0;
+}
+
+.must-read-item:hover .must-read-title {
+    color: #D91B1B;
+    text-decoration: underline;
+}
+
+/* Garis Pemisah Antar Item */
+.must-read-divider {
+    border: 0;
+    border-top: 1px solid #333; /* Abu-abu gelap */
+    margin: 1.5rem 0;
+}
+
+/* --- VISIBILITY CONTROL --- */
+/* Sembunyikan di Mobile (Layar < 1024px) */
+@media (max-width: 1023px) {
+    .home-sidebar {
+        display: none !important;
+    }
+}
+
+/* Tampilkan di Desktop/Tablet (Layar >= 1024px) */
+@media (min-width: 1024px) {
+    .home-sidebar {
+        display: block !important;
+        background: transparent !important; /* Hilangkan background abu bawaan */
+        padding: 0 !important; /* Hilangkan padding bawaan */
+    }
+}
+
+/* ==========================================
+   NEW SIDEBAR STYLES (DARK THEME)
+   ========================================== */
+/* === FORCE SIDEBAR SPACING FIX === */
+
+/* 1. Container Sidebar Hitam */
+.home-sidebar.dark-theme,
+body.dark-mode .home-sidebar.dark-theme {
+    background: #000000 !important;
+    color: #FFFFFF !important;
+    padding: 2.5rem 2rem !important; /* Padding sekeliling diperbesar */
+    border: none;
+}
+
+/* 2. Judul Sidebar */
+.sidebar-title-new {
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.sidebar-underline {
+    width: 100%;
+    height: 1px;
+    background: #D91B1B;
+    margin-bottom: 3rem !important; /* Jarak jauh dari Judul ke Berita 1 */
+}
+
+/* 3. Container List - Pakai Flex Column */
+.popular-list-new {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* 4. Style Kartu Berita */
+.sidebar-news-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+
+.sidebar-news-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    
+    /* FORCE DISPLAY from User Request */
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* HOVER EFFECTS: Title turns red when card is hovered */
+.news-card:hover .news-card-title,
+.sidebar-news-card:hover .sidebar-news-title {
+    color: #D91B1B !important;
+    transition: color 0.3s ease;
+}
+
+/* Ensure Cursor Pointer */
+.news-card {
+    cursor: pointer !important;
+}
+
+.news-card-title {
+    cursor: pointer !important;
+}
+
+
+/* 5. PEMISAH (DIVIDER) - INI KUNCINYA */
+.sidebar-divider {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: #333333; /* Warna garis abu gelap */
+    
+    /* JARAK ATAS BAWAH YANG SANGAT JAUH */
+    margin-top: 2.5rem !important; 
+    margin-bottom: 2.5rem !important;
+}
+
+/* Kategori Merah Besar (BONGKAR) */
+.cat-large-red {
+    font-size: 2.5rem !important; /* Paksa Besar */
+    font-weight: 900;
+    color: #ff0000 !important;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Kategori Kecil (POJOK SIN PO) */
+.cat-small {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.sidebar-news-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #fff;
+    margin: 0;
+}
+
+/* ==========================================
+   MOBILE POPULAR SECTION
+   ========================================== */
+
+.mobile-popular-section {
+    display: block; /* Tampil di Mobile */
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 4px solid var(--color-gray-100);
+}
+
+.mobile-popular-header {
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: var(--color-black);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mobile-popular-header::before {
+    content: '#';
+    color: var(--color-primary);
+}
+
+/* Sembunyikan total di Desktop/Tablet (Layar >= 1024px) */
+@media (min-width: 1024px) {
+    .mobile-popular-section {
+        display: none !important;
+    }
+}/* ==========================================
+   MOBILE POPULAR SECTION
+   ========================================== */
+.mobile-popular-section {
+    display: none; /* Hidden by default on desktop/tablet */
+    margin-bottom: 2rem;
+}
+
+.mobile-section-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.025em;
+}
+
+.mobile-underline {
+    width: 50px;
+    height: 3px;
+    background: var(--color-primary);
+    margin-bottom: 1.5rem;
+}
+
+.mobile-popular-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mobile-popular-item {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .mobile-popular-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.mobile-popular-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.mobile-popular-number {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-gray-300);
+    line-height: 1;
+    min-width: 2rem;
+}
+
+body.dark-mode .mobile-popular-number {
+    color: var(--color-gray-700);
+}
+
+.mobile-popular-content {
+    flex: 1;
+}
+
+.mobile-popular-title {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    color: var(--color-black);
+}
+
+body.dark-mode .mobile-popular-title {
+    color: var(--color-white);
+}
+
+.mobile-popular-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.mobile-popular-category {
+    color: var(--color-primary);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Response: Show only on Mobile */
+@media (max-width: 768px) {
+    .mobile-popular-section {
+        display: block;
+    }
+}
+
+/* ==========================================
+   TRENDING SECTION (DESKTOP)
+   ========================================== */
+.trending-section {
+    padding: 2rem;
+    margin-top: 4rem;
+    border-radius: 0.5rem;
+    display: none; /* Default hidden */
+    background: var(--color-gray-100);
+}
+
+@media (min-width: 1024px) {
+    .trending-section {
+        display: block;
+    }
+}
+
+body.dark-mode .trending-section {
+    background: var(--color-gray-900);
+}
+
+.trending-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.trending-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--color-black);
+}
+
+body.dark-mode .trending-title {
+    color: var(--color-white);
+}
+
+.trending-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+}
+
+.trending-item {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: opacity 0.3s;
+}
+
+.trending-item:hover {
+    opacity: 0.9;
+}
+
+.trending-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    background: #222;
+}
+
+.trending-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.trending-item-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--color-black);
+    transition: color 0.3s;
+    
+    /* Limit to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.dark-mode .trending-item-title {
+    color: var(--color-white);
+}
+
+.trending-item:hover .trending-item-title {
+    color: var(--color-primary);
+}
+
+.trending-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500); 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.trending-author {
+    font-weight: 700;
+}
+
+/* Dots pagination style (static for now as per design image) */
+.trending-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.trending-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--color-gray-300);
+    border-radius: 50%;
+}
+
+body.dark-mode .trending-dot {
+    background: var(--color-gray-700);
+}
+
+.trending-dot.active {
+    background: var(--color-gray-500);
+}
+
+body.dark-mode .trending-dot.active {
+    background: var(--color-gray-400);
+}
+
+/* ==========================================
+   BERITA UTAMA SECTION
+   ========================================== */
+.berita-utama-section {
+    padding: 3rem 0;
+    background: var(--color-white);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .berita-utama-section {
+    background: var(--color-black);
+    border-top-color: var(--color-gray-800);
+}
+
+.berita-utama-header {
+    margin-bottom: 2rem;
+}
+
+.berita-utama-title {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-black);
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+body.dark-mode .berita-utama-title {
+    color: var(--color-white);
+}
+
+.berita-utama-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: var(--color-primary);
+}
+
+.berita-utama-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+/* Left Column: News Items */
+.berita-utama-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.berita-utama-item {
+    display: flex;
+    gap: 1.5rem;
+    cursor: pointer;
+    align-items: flex-start;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+body.dark-mode .berita-utama-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.berita-utama-item:last-child {
+    border-bottom: none;
+}
+
+.berita-utama-image-wrapper {
+    width: 200px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+}
+
+.berita-utama-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.berita-utama-item:hover .berita-utama-image {
+    transform: scale(1.05);
+}
+
+.berita-utama-content {
+    flex: 1;
+}
+
+.berita-utama-category {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.berita-utama-item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    color: var(--color-black);
+    transition: color 0.3s;
+    text-transform: uppercase;
+}
+
+body.dark-mode .berita-utama-item-title {
+    color: var(--color-white);
+}
+
+.berita-utama-item:hover .berita-utama-item-title {
+    color: var(--color-primary);
+}
+
+.berita-utama-meta {
+    font-size: 0.7rem;
+    color: var(--color-gray-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Right Column: Empty / Visual / Opinion */
+.berita-utama-right {
+    background: var(--color-gray-50);
+    border-radius: 8px;
+    min-height: 400px; /* Placeholder height */
+    /* Intentionally left empty for now as requested */
+}
+
+body.dark-mode .berita-utama-right {
+    background: var(--color-gray-900);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .berita-utama-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .berita-utama-right {
+        display: none; /* Hide empty column on mobile if desired, or keep it */
+        min-height: 200px;
+    }
+    
+    .berita-utama-item {
+        gap: 1rem;
+    }
+
+    .berita-utama-image-wrapper {
+        width: 140px;
+    }
+
+    .berita-utama-category {
+        font-size: 0.5rem;
+    }
+    
+    .berita-utama-item-title {
+        font-size: 0.8rem;
+        display: -webkit-box;           /* aktifkan flexbox khusus WebKit */
+        -webkit-line-clamp: 3;          /* batasi maksimal 2 baris */
+        -webkit-box-orient: vertical;   /* orientasi vertikal */
+        overflow: hidden;               /* sembunyikan teks yang lebih */
+        text-overflow: ellipsis;        /* tambahkan "..." di akhir */
+    }
+}
+
+/* ==========================================
+   PUBLISHER INFO UI (NEW)
+   ========================================== */
+.publisher-info-bar {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    gap: 1.5rem;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+body.dark-mode .publisher-info-bar {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.publisher-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.publisher-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.publisher-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.publisher-label {
+    font-size: 0.7rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+}
+
+body.dark-mode .publisher-label {
+    color: var(--color-gray-400);
+}
+
+.publisher-value {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color-gray-800);
+    text-transform: uppercase;
+}
+
+body.dark-mode .publisher-value {
+    color: var(--color-gray-200);
+}
+
+.publisher-value.text-red {
+    color: var(--color-primary);
+}
+
+.publisher-divider {
+    width: 1px;
+    height: 30px;
+    background-color: var(--color-gray-300);
+}
+
+body.dark-mode .publisher-divider {
+    background-color: var(--color-gray-700);
+}
+
+.publisher-spacer {
+    flex: 1;
+}
+
+.align-right {
+    text-align: right;
+    align-items: flex-end;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* 1. Center Title */
+    .article-title {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    /* 2. Publisher Info Grid (2x2) */
+    .publisher-info-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--color-gray-200);
+        border-radius: 8px;
+        padding: 0;
+        margin-bottom: 2rem;
+        background: transparent;
+    }
+    
+    body.dark-mode .publisher-info-bar {
+        border-color: var(--color-gray-800);
+    }
+
+    .publisher-divider, 
+    .publisher-spacer {
+        display: none;
+    }
+
+    .publisher-group {
+        width: 100%;
+        margin: 0;
+        padding: 1rem;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+    }
+
+    .publisher-details {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .align-right {
+        text-align: center;
+        align-items: center;
+    }
+
+    /* Grid Borders */
+    /* Item 1: Wartawan */
+    .publisher-group:nth-child(1) {
+        border-right: 1px solid var(--color-gray-200);
+        border-bottom: 1px solid var(--color-gray-200);
+    }
+    /* Item 2: Editor (3rd child) */
+    .publisher-group:nth-child(3) {
+        border-bottom: 1px solid var(--color-gray-200);
+    }
+    /* Item 3: Terbit (5th child) */
+    .publisher-group:nth-child(5) {
+        border-right: 1px solid var(--color-gray-200);
+    }
+    /* Item 4: Dilihat (7th child) */
+    .publisher-group:nth-child(7) {
+        border: none;
+    }
+
+    body.dark-mode .publisher-group {
+        border-color: var(--color-gray-800);
+    }
+
+    /* Hide Icon */
+    .publisher-icon {
+        display: none;
+    }
+}
+
+/* ==========================================
+   ARTICLE 2-COLUMN LAYOUT
+   ========================================== */
+.article-container-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px; /* Main content vs Sidebar */
+    gap: 3rem;
+    align-items: start;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.article-main-column {
+    min-width: 0; /* Prevent potential flex/grid issues */
+}
+
+.article-sidebar {
+    position: sticky;
+    top: 100px; /* Sticky top offset */
+    height: fit-content;
+    z-index: 10;
+}
+
+/* Adjust Content Padding/Width */
+.article-detail {
+    /* Originally article detail might have had constraints, ensure it fills the column */
+    max-width: 100%; 
+    margin: 0;
+    padding: 0;
+    box-shadow: none; /* Remove potential box shadow if main container has it */
+}
+
+.article-title {
+    font-size: 2.2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--color-gray-900);
+}
+
+body.dark-mode .article-content {
+    color: var(--color-gray-100);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .article-container-grid {
+        grid-template-columns: 1fr; /* Stack on smaller screens */
+        gap: 2rem;
+    }
+    
+    .article-sidebar {
+        position: static; /* No sticky on mobile usually */
+        margin-top: 2rem;
+    }
+    
+    .article-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* ==========================================
+   ARTICLE SIDEBAR POPULER
+   ========================================== */
+.sidebar-title-strong {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #4B5563; /* Dark gray */
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+body.dark-mode .sidebar-title-strong {
+    color: #FFFFFF;
+}
+
+/* Featured Item */
+.populer-featured {
+    cursor: pointer;
+    margin-bottom: 2.5rem;
+    group: featured;
+}
+
+.populer-featured-img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
+}
+
+.populer-featured:hover .populer-featured-img {
+    transform: scale(1.02);
+}
+
+.populer-featured-info {
+    font-size: 0.85rem;
+    color: #9CA3AF;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.populer-author {
+    color: #6B7280;
+    font-weight: 800;
+}
+
+body.dark-mode .populer-author {
+    color: #9CA3AF;
+}
+
+.populer-featured-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--color-gray-900);
+    margin: 0;
+}
+
+body.dark-mode .populer-featured-title {
+    color: #FFFFFF;
+}
+
+.populer-featured:hover .populer-featured-title {
+    color: var(--color-primary);
+}
+
+/* List Items */
+.populer-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.populer-list-row {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    align-items: flex-start;
+}
+
+.populer-list-thumb {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.populer-list-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.populer-list-title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-gray-900);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.dark-mode .populer-list-title {
+    color: #E5E7EB;
+}
+
+.populer-list-row:hover .populer-list-title {
+    color: var(--color-primary);
+}
+
+.populer-list-meta {
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    display: flex;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.populer-meta-author {
+    font-weight: 800;
+    color: #6B7280;
+}
+
+body.dark-mode .populer-meta-author {
+    color: #9CA3AF;
+}
+
+
+/* ==========================================
+   POPULAR NEWS SECTION (SIDEBAR NEW)
+   ========================================== */
+.popular-section-new {
+    margin-top: 3rem;
+}
+
+.sidebar-title-strong {
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-black);
+    letter-spacing: -0.02em;
+}
+
+.dark-mode .sidebar-title-strong {
+    color: var(--color-white);
+    border-bottom-color: var(--color-white);
+}
+
+/* Featured Item (First) */
+.populer-featured {
+    cursor: pointer;
+    margin-bottom: 2rem;
+}
+
+.populer-featured-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.populer-featured-info {
+    font-size: 0.7rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.populer-author {
+    color: var(--color-primary);
+}
+
+.populer-featured-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin: 0;
+}
+
+.dark-mode .populer-featured-title {
+    color: var(--color-white);
+}
+
+.populer-featured:hover .populer-featured-title {
+    color: var(--color-primary);
+}
+
+/* List Items */
+.populer-list-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.populer-list-row {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    align-items: flex-start;
+}
+
+.populer-list-thumb {
+    width: 90px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.populer-list-content {
+    flex: 1;
+}
+
+.populer-list-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin-bottom: 0.3rem;
+    /* Limit lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dark-mode .populer-list-title {
+    color: var(--color-white);
+}
+
+.populer-list-row:hover .populer-list-title {
+    color: var(--color-primary);
+}
+
+.populer-list-meta {
+    font-size: 0.7rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    font-weight: 600;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.populer-meta-author {
+    color: var(--color-primary);
+}
+
+/* ==========================================
+   RELATED NEWS (REDESIGN)
+   ========================================== */
+.related-news {
+    margin: 4rem auto;
+    max-width: 1280px;
+}
+
+.related-news-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.related-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Featured Item (Top of Column) */
+.related-featured {
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+.related-featured-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.related-featured-img {
+    width: 180px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.related-featured-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.related-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.6rem;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.related-author-avatar {
+    display: none;
+}
+
+.related-author-name {
+    color: var(--color-black);
+    font-weight: 800;
+}
+
+.dark-mode .related-author-name {
+    color: var(--color-white);
+}
+
+.related-date {
+    color: var(--color-gray-400);
+}
+
+.related-featured-title {
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--color-black);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark-mode .related-featured-title {
+    color: var(--color-white);
+}
+
+.related-featured:hover .related-featured-title {
+    color: var(--color-primary);
+}
+
+/* Text Item (Below Featured) */
+.related-text-item {
+    cursor: pointer;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.dark-mode .related-text-item {
+    border-top-color: var(--color-gray-800);
+}
+
+.related-text-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--color-black);
+    margin: 0;
+}
+
+.dark-mode .related-text-title {
+    color: var(--color-gray-300);
+}
+
+.related-text-item:hover .related-text-title {
+    color: var(--color-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .related-news-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .related-featured-row {
+        flex-direction: column;
+    }
+    
+    .related-featured-img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+
+    /* ==========================================
+       MOBILE BERITA TERKINI (TIMELINE OVERRIDE)
+       ========================================== */
+    .timeline-container {
+        padding-left: 0;
+        margin-top: 1.5rem;
+    }
+
+    .timeline-item {
+        margin-bottom: 0; /* Reset bottom margin to handle borders */
+        padding-left: 0;  /* Remove timeline padding */
+        gap: 1rem;
+        border-bottom: 1px solid var(--color-gray-200);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        align-items: flex-start; /* List item alignment */
+    }
+
+    body.dark-mode .timeline-item {
+        border-bottom-color: var(--color-gray-800);
+    }
+    
+    /* Remove Timeline Elements */
+    .timeline-marker {
+        display: none;
+    }
+
+    /* DEFAULT MOBILE ITEM (LIST STYLE - Matches Berita Utama list) */
+    .timeline-item {
+        display: flex;
+        flex-direction: row;          /* horizontal layout */
+        align-items: flex-start;
+        gap: 1rem;
+        border-bottom: 1px solid var(--color-gray-100);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    body.dark-mode .timeline-item {
+        border-bottom-color: var(--color-gray-800);
+    }
+
+    /* Image wrapper: tetapkan lebar sama dengan berita utama mobile */
+    .timeline-image-wrapper {
+        width: 140px;                 
+        height: auto;
+        aspect-ratio: 16/9;
+        flex-shrink: 0;
+        order: 0;
+        border-radius: 4px; /* Ensure radius matches */
+    }
+
+    /* Konten teks di kanan */
+    .timeline-content {
+        flex: 1;
+        min-width: 0; /* Prevent flex overflow */
+    }
+
+    .timeline-category {
+        font-size: 0.5rem; /* Match berita-utama-category mobile size ~0.5rem - 0.7rem */
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--color-primary);
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+
+    /* Title - Match Berita Utama Item Title */
+    .timeline-title {
+        font-size: 0.8rem; /* Closer to berita-utama 0.8rem-1rem range, 0.8 was too small */
+        font-weight: 700;
+        line-height: 1.35;
+        text-transform: uppercase;
+        color: var(--color-black);
+        margin: 0;
+        margin-bottom: 0.3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .timeline-author {
+        color: var(--color-gray-500);
+    }
+
+    body.dark-mode .timeline-title {
+        color: var(--color-white);
+    }
+
+    /* Meta header - Match Berita Utama Meta */
+    .timeline-meta-header {
+        margin-top: 0; 
+        font-size: 0.65rem;
+        color: var(--color-gray-500);
+        display: flex;
+        align-items: center; 
+        gap: 0.3rem;
+    }
+
+    /* FIRST ITEM OVERRIDE (Hero Style) */
+    .timeline-item:first-child {
+        flex-direction: column;
+        border-bottom: 4px solid var(--color-gray-100);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+        gap: 0.5rem;
+    }
+
+    body.dark-mode .timeline-item:first-child {
+        border-bottom-color: var(--color-gray-800);
+    }
+    
+    .timeline-item:first-child .timeline-image-wrapper {
+        width: 100%;
+        aspect-ratio: 16/9;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-item:first-child .timeline-title {
+        font-size: 1.25rem;
+        line-height: 1.3;
+        -webkit-line-clamp: 3;
+    }
+    
+    .timeline-item:first-child .timeline-meta-header {
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+    }
+}
+
+/* ==========================================
+   NEW CATEGORY LAYOUT (HERO + LIST)
+   ========================================== */
+.category-hero-section {
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .category-hero-section {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.category-label {
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--color-black);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    border-left: 5px solid var(--color-primary);
+    padding-left: 0.75rem;
+    line-height: 1;
+}
+
+body.dark-mode .category-label {
+    color: var(--color-white);
+}
+
+.category-hero-container {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* 60% - 40% ratio approx */
+    gap: 2rem;
+    align-items: start;
+}
+
+/* LEFT: MAIN HERO ARTICLE */
+.category-hero-main {
+    position: relative;
+    cursor: pointer;
+    group: cat-main; /* For hover context */
+}
+
+.cat-hero-image-wrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.cat-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.category-hero-main:hover .cat-hero-image {
+    transform: scale(1.05);
+}
+
+.cat-hero-content {
+    margin-top: 1rem;
+}
+
+.cat-hero-title {
+    font-family: 'Oswald', sans-serif; /* Fallback will handle if not loaded */
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin-bottom: 0.75rem;
+    transition: color 0.2s;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.dark-mode .cat-hero-title {
+    color: var(--color-white);
+}
+
+.category-hero-main:hover .cat-hero-title {
+    color: var(--color-primary);
+}
+
+.cat-hero-summary {
+    font-size: 1rem;
+    color: var(--color-gray-600);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.dark-mode .cat-hero-summary {
+    color: var(--color-gray-400);
+}
+
+.cat-hero-meta {
+    font-size: 0.85rem;
+    color: var(--color-gray-500);
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+/* RIGHT: LIST */
+.category-hero-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.cat-list-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-gray-200);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+body.dark-mode .cat-list-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.cat-list-item:first-child {
+    padding-top: 0;
+}
+
+.cat-list-item:hover .cat-list-title {
+    color: var(--color-primary);
+}
+
+.cat-list-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-gray-800); /* Dark gray per request */
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+body.dark-mode .cat-list-title {
+    color: var(--color-gray-300);
+}
+
+.cat-list-date {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .category-hero-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .cat-hero-title {
+        font-size: 1.5rem;
+    }
+    
+    /* On mobile, maybe hide summary to save space or keep it, user request said "headline + ringkasan" so keep it */
+    
+    .category-hero-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0; /* Gap handled by padding in items */
+    }
+    
+    .cat-list-item {
+        padding: 0.75rem 0;
+    }
+}
+
+/* ==========================================
+   CATEGORY OVERLAY HERO (PHASE 2)
+   ========================================== */
+
+/* The main container acts as the "Image Frame" */
+.category-overlay-hero {
+    position: relative;
+    width: 100%;
+    min-height: 500px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-end; /* Align content to bottom */
+}
+
+/* Gradient Overlay to make text readable */
+.category-overlay-mask {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.2) 100%);
+    z-index: 1;
+}
+
+/* Content Grid Wrapper sitting on top of the image */
+.category-overlay-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* 60% Left (Main), 40% Right (List) */
+    gap: 3rem;
+    align-items: end; /* Align both to bottom */
+}
+
+/* LEFT: Main Article Text */
+.cat-overlay-left {
+    color: white;
+}
+
+.cat-overlay-tag {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.cat-overlay-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.cat-overlay-title:hover {
+    color: #ffcfcf; /* Lighter red/pink on hover against dark bg */
+}
+
+.cat-overlay-summary {
+    font-size: 1rem;
+    color: #ddd;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 90%;
+}
+
+.cat-overlay-meta {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 600;
+}
+
+/* RIGHT: News List (Glassmorphism) */
+.cat-overlay-list-wrapper {
+    background: rgba(20, 20, 20, 0.85); /* Semi-transparent dark */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    align-self: start; /* Align list to top or stretch? Let's try center or stretch context. */
+    margin-top: 2rem; /* Spacing from top if aligned top, or just sit there */
+}
+
+.cat-overlay-list-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.cat-overlay-list-item:first-child {
+    padding-top: 0;
+}
+
+.cat-overlay-list-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cat-overlay-list-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+    transition: color 0.2s;
+}
+
+.cat-overlay-list-item:hover .cat-overlay-list-title {
+    color: var(--color-primary);
+}
+
+.cat-overlay-list-date {
+    font-size: 0.75rem;
+    color: #999;
+    display: block; /* Ensure it takes own line on desktop */
+}
+
+/* New Elements for Modified List (Mobile Numbering) */
+.cat-list-number {
+    display: none; /* Hidden on Desktop */
+}
+
+.cat-list-category-mobile {
+    display: none; /* Hidden on Desktop */
+}
+
+.cat-list-meta-mobile {
+    display: none; /* Hidden on Desktop */
+}
+
+.cat-list-info {
+    flex: 1;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .category-overlay-hero {
+        /* Mobile: Split View. Image on top, List below */
+        flex-direction: column;
+        min-height: auto;
+        /* Reset background to be used only for the top part via size or move to pseudo/child */
+        background-repeat: no-repeat;
+        background-position: top center;
+        background-size: 100% 300px; /* High enough for the main text area */
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        background-color: var(--color-white); /* Fill the rest with white/dark */
+    }
+
+    body.dark-mode .category-overlay-hero {
+        background-color: var(--color-black);
+    }
+    
+    .category-overlay-mask {
+        /* Restrict mask to the image area */
+        height: 300px;
+        bottom: auto; 
+    }
+
+    .category-overlay-content {
+        grid-template-columns: 1fr;
+        padding: 0;
+        gap: 0;
+        display: block; /* Use block flow */
+        width: 100%;
+    }
+
+    /* LEFT: Top Hero Section */
+    .cat-overlay-left {
+        height: 300px; /* Match bg height */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 1.5rem;
+    }
+
+    /* RIGHT: Bottom List Section */
+    .cat-overlay-list-wrapper {
+        background: transparent !important;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        border-radius: 0;
+        margin-top: 0;
+        padding: 0 1rem 1rem 1rem; /* Padding for list area */
+        /* Use solid background to cover any overflow if needed, but container has it */
+    }
+    
+    .cat-overlay-list-item {
+        flex-direction: row; /* Horizontal layout like Popular News */
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--color-gray-200);
+        align-items: center;
+    }
+
+    body.dark-mode .cat-overlay-list-item {
+        border-bottom-color: var(--color-gray-800);
+    }
+
+    /* Show Numbering (Like Popular News) */
+    .cat-list-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--color-gray-300);
+        line-height: 1;
+        min-width: 1rem;
+        text-align: center;
+        transform: translateY(-6px);
+    }
+
+    body.dark-mode .cat-list-number {
+        color: var(--color-gray-700);
+    }
+
+    /* Show Mobile Category */
+    .cat-list-category-mobile {
+        display: inline-block;
+        color: var(--color-primary);
+        font-weight: 800;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+    }
+
+    /* Adjust Title */
+    .cat-overlay-list-title {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 1rem;
+        color: var(--color-black);
+        margin-bottom: 0.3rem;
+        font-weight: 700;
+        text-transform: none; 
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    body.dark-mode .cat-overlay-list-title {
+        color: var(--color-white);
+    }
+
+    /* Mobile Meta (Time Only) */
+    .cat-list-meta-mobile {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--color-gray-500);
+    }
+    
+    /* Hide the old desktop date */
+    .cat-overlay-list-date {
+        display: none;
+    }
+
+    /* Main Title Adjusments for Mobile */
+    .cat-overlay-title {
+        font-size: 1.5rem; /* Smaller than desktop 2.5rem */
+        transform: translateY(16px);
+    }
+}
+
+/* ==========================================
+   CATEGORY HIGHLIGHT SECTION (PHASE 3)
+   ========================================== */
+.category-highlight-section {
+    padding-bottom: 3rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .category-highlight-section {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.highlight-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.highlight-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-black);
+    white-space: nowrap;
+}
+
+body.dark-mode .highlight-title {
+    color: var(--color-white);
+}
+
+.highlight-line {
+    flex-grow: 1;
+    height: 1px;
+    background: var(--color-black);
+}
+
+body.dark-mode .highlight-line {
+    background: var(--color-gray-600);
+}
+
+.highlight-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1fr;
+    gap: 2rem;
+}
+
+/* FEATURE CARD (Vertical) */
+.highlight-feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+.highlight-feature-img-wrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.highlight-feature-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.highlight-feature-card:hover .highlight-feature-img {
+    transform: scale(1.05);
+}
+
+.highlight-feature-content h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    color: var(--color-black);
+    transition: color 0.2s;
+}
+
+body.dark-mode .highlight-feature-content h3 {
+    color: var(--color-white);
+}
+
+.highlight-feature-card:hover h3 {
+    color: var(--color-primary);
+}
+
+/* LIST CARD (Horizontal) */
+.highlight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.highlight-list-card {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    padding-bottom: 1.5rem;
+    cursor: pointer;
+}
+
+.highlight-list-card:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+body.dark-mode .highlight-list-card {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.highlight-list-img-wrapper {
+    width: 120px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.highlight-list-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.highlight-list-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.highlight-list-content h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.3;
+    color: var(--color-gray-700);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s;
+}
+
+body.dark-mode .highlight-list-content h3 {
+    color: var(--color-gray-300);
+}
+
+.highlight-list-card:hover h3 {
+    color: var(--color-primary);
+}
+
+.highlight-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    margin-top: 0.5rem;
+}
+
+.highlight-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* AD PLACEHOLDER */
+.highlight-ad-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-weight: 800;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+}
+
+body.dark-mode .highlight-ad-placeholder {
+    background: var(--color-gray-800);
+    color: var(--color-gray-600);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .highlight-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .highlight-list-card {
+        padding-bottom: 1rem;
+    }
+    
+    .highlight-ad-placeholder {
+        min-height: 200px;
+    }
+}
+
+/* REFINEMENT: ALIGN HEIGHTS OF HIGHLIGHT SECTION */
+
+/* Make the feature card fill the grid cell height */
+.highlight-feature-card {
+    height: 100%;
+}
+
+/* Make image wrapper fill the available space minus text */
+.highlight-feature-img-wrapper {
+    aspect-ratio: auto !important; /* Override 16/9 */
+    flex-grow: 1;
+    height: 100%;
+    min-height: 200px;
+}
+
+/* Ensure list fills height too if needed, but usually list dictates height */
+.highlight-list {
+    height: 100%;
+    justify-content: space-between; /* Distribusi evently if list is taller/shorter */
+}
+
+/* Update grid to top align but stretch items */
+.highlight-grid {
+    align-items: stretch;
+}
+
+/* ==========================================
+   CATEGORY LOAD MORE UI (NEW)
+   ========================================== */
+.category-load-more-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin: 3rem 0;
+    max-width: 100%;
+}
+
+.btn-load-more-pill {
+    flex: 1;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 9999px; /* Pill shape */
+    padding: 1rem 2rem;
+    color: #6B7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: capitalize; /* "Muat lagi" */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark-mode .btn-load-more-pill {
+    background: #1F2937;
+    border-color: #374151;
+    color: #D1D5DB;
+}
+
+.btn-load-more-pill:hover {
+    background: #F3F4F6;
+    color: var(--color-black);
+    border-color: #D1D5DB;
+}
+
+.dark-mode .btn-load-more-pill:hover {
+    background: #374151;
+    color: #fff;
+}
+
+.btn-index-pill {
+    flex: 0 0 auto; /* Don't shrink/grow */
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 9999px;
+    padding: 1rem 2rem;
+    color: #9CA3AF; /* Lighter text for Indeks Berita */
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase; /* "INDEKS BERITA" */
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.dark-mode .btn-index-pill {
+    background: #1F2937;
+    border-color: #374151;
+    color: #9CA3AF;
+}
+
+.btn-index-pill:hover {
+    background: #F3F4F6;
+    color: var(--color-black);
+}
+
+.dark-mode .btn-index-pill:hover {
+    background: #374151;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .category-load-more-container {
+        flex-direction: row; /* Keep row for 2 buttons */
+        gap: 1rem;
+    }
+    
+    .btn-load-more-pill, .btn-index-pill {
+        padding: 0.8rem 1rem;
+        font-size: 0.8rem;
+    }
+}
+
+.category-news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* ==========================================
+   CATEGORY LIST STYLE OVERRIDES
+   ========================================== */
+.category-news-list {
+    display: flex;
+    flex-direction: column;
+    /* gap is handled by padding in items usually, but gap helps */
+    gap: 0; 
+}
+
+.category-news-list .timeline-item {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--color-gray-200);
+    align-items: flex-start;
+    margin-bottom: 0;
+}
+
+.dark-mode .category-news-list .timeline-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.category-news-list .timeline-item:last-child {
+    border-bottom: none;
+}
+
+/* Hide Timeline Marker for Category View */
+.category-news-list .timeline-marker {
+    display: none;
+}
+
+/* Image Sizing for Desktop List */
+.category-news-list .timeline-image-wrapper {
+    width: 260px;
+    height: auto;
+    aspect-ratio: 16/9;
+    flex-shrink: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0; /* Reset mobile styles if any */
+}
+
+/* Content Styling */
+.category-news-list .timeline-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.category-news-list .timeline-category {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.category-news-list .timeline-title {
+    font-size: 1.5rem; /* Larger for category list */
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+    color: var(--color-black);
+    text-transform: uppercase;
+}
+
+.dark-mode .category-news-list .timeline-title {
+    color: var(--color-white);
+}
+
+.category-news-list .timeline-meta-header {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Responsive adjustments for Category List */
+@media (max-width: 768px) {
+    .category-news-list .timeline-item {
+        flex-direction: row;
+        gap: 1rem;
+        padding: 1rem 0;
+        align-items: flex-start;
+    }
+    
+    .category-news-list .timeline-image-wrapper {
+        width: 140px;
+        height: auto;
+        aspect-ratio: 16/9;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    
+    .category-news-list .timeline-title {
+        font-size: 0.7rem;
+        line-height: 1.35;
+        margin-bottom: 0.4rem;
+        display: -webkit-box; /* aktifkan flexbox khusus WebKit */
+        -webkit-line-clamp: 3; /* batasi maksimal 3 baris */
+        -webkit-box-orient: vertical; /* orientasi vertikal */
+        overflow: hidden; /* sembunyikan teks yang lebih */
+        text-overflow: ellipsis; /* tambahkan "..." di akhir */
+    }
+
+    .category-news-list .timeline-category {
+        font-size: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .category-news-list .timeline-meta-header {
+        font-size: 0.5rem;
+    }
+}
+
+/* ==========================================
+   CATEGORY 2-COLUMN LAYOUT (NEW)
+   ========================================== */
+.category-content-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr; /* Main Content ~66%, Sidebar ~33% */
+    gap: 3rem;
+    margin-bottom: 4rem;
+    align-items: start;
+}
+
+.category-main-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.category-sidebar-col {
+    display: flex;
+    flex-direction: column;
+    /* Optional: Sticky Sidebar */
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+/* Sidebar Title (Matched with Image style: BERITA TERKINI) */
+.cat-sidebar-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--color-black);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+    /* Small separator line like image */
+    position: relative;
+}
+
+.cat-sidebar-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--color-gray-300); /* Or black/red */
+}
+
+.dark-mode .cat-sidebar-title {
+    color: var(--color-white);
+    border-bottom-color: var(--color-gray-700);
+}
+
+/* Sidebar List Items (Text Only) */
+.cat-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.cat-sidebar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-gray-100);
+    padding-bottom: 1rem;
+}
+
+.dark-mode .cat-sidebar-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.cat-sidebar-item:last-child {
+    border-bottom: none;
+}
+
+.cat-sidebar-meta {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cat-sidebar-item-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--color-black);
+    transition: color 0.2s;
+    /* Limit lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dark-mode .cat-sidebar-item-title {
+    color: var(--color-white);
+}
+
+.cat-sidebar-item:hover .cat-sidebar-item-title {
+    color: var(--color-primary);
+}
+
+.cat-sidebar-date {
+    font-size: 0.65rem;
+    color: var(--color-gray-400);    
+}
+
+
+/* Adjust Buttons for 2-Col Layout */
+.btn-col-full {
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .category-content-grid {
+        grid-template-columns: 1fr; /* Stack on mobile */
+        gap: 3rem;
+    }
+    
+    .category-sidebar-col {
+        position: static; /* Remove sticky on mobile */
+    }
+    
+    /* Order: Main first, then Sidebar? Or let them stack naturally. 
+       Usually sidebar below main content on mobile. */
+}
