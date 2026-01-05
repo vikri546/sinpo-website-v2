@@ -2311,26 +2311,42 @@ body.dark-mode #fullscreen-search-input {
 
     .nav-main-new {
         width: 100%;
-        display: flex;
-        justify-content: center;
+        display: block; /* Changed from flex so mask works better on container */
+        overflow: hidden; /* Hide overflow of container, specific scroll on list */
+        -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        padding: 0;
     }
 
     .nav-list-new {
         display: flex !important;
-        justify-content: center !important;
-        flex-wrap: wrap !important;
-        gap: 10px 15px !important;
-        overflow-x: visible !important;
-        padding: 0 10px !important;
+        justify-content: flex-start !important; /* Start from left */
+        flex-wrap: nowrap !important; /* Single line */
+        gap: 0.7rem !important; /* Reset gap, control via padding on items if needed */
+        overflow-x: auto !important;
+        padding: 0 5% !important; /* Side padding to be under the fade */
         width: 100%;
         margin: 0;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+        -webkit-overflow-scrolling: touch;
     }
     
-    .nav-list-new li { text-align: center; }
+    .nav-list-new::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
+    }
+    
+    .nav-list-new li { 
+        text-align: center;
+        flex-shrink: 0;
+        padding: 0 10px;
+    }
     
     .nav-list-new li a {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         white-space: nowrap;
+        display: block;
+        padding: 5px 0;
     }
 }
 
@@ -4810,7 +4826,7 @@ body.dark-mode .cat-list-title {
 
     /* Adjust Title */
     .cat-overlay-list-title {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: 'Oswald', sans-serif;
         font-size: 1rem;
         color: var(--color-black);
         margin-bottom: 0.3rem;
