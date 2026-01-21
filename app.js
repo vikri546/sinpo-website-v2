@@ -27,17 +27,38 @@ const AppState = {
     isLoading: false,
     latestOffset: 0, // Tambahan untuk load more
     latestLimit: 5,   // Jumlah load per klik
-    beritaUtamaOffset: 15, // Offset awal untuk Berita Utama (setelah fetch awal 10-14)
-    beritaUtamaOffset: 15, // Offset awal untuk Berita Utama (setelah fetch awal 10-14)
-    beritaUtamaLimit: 5,    // Limit untuk load more Berita Utama
+    beritaUtamaOffset: 15, // Offset awal untuk Berita Utama
     beritaUtamaLimit: 5,    // Limit untuk load more Berita Utama
     categories: null,       // Cache kategori
     categoryOffset: 0,      // Offset untuk pagination kategori
     categoryLimit: 12,      // Limit per load kategori
     currentCategoryId: null, // ID Kategori aktif
     isFetchingCategory: false, // Flag loading
-    hasMoreCategory: true   // Flag jika masih ada berita
+    hasMoreCategory: true,   // Flag jika masih ada berita
+    seenIds: new Set()      // Tracker untuk mencegah duplikasi
 };
+
+/**
+ * Helper to register news IDs to seenIds
+ * @param {Array|Object} items 
+ */
+function registerSeenNews(items) {
+    if (!items) return;
+    const array = Array.isArray(items) ? items : [items];
+    array.forEach(item => {
+        if (item && item.id) AppState.seenIds.add(item.id);
+    });
+}
+
+/**
+ * Filter items that already exist in seenIds
+ * @param {Array} items 
+ * @returns {Array}
+ */
+function filterSeenNews(items) {
+    if (!items || !Array.isArray(items)) return [];
+    return items.filter(item => !AppState.seenIds.has(item.id));
+}
 
 // ==========================================
 // API REQUEST HANDLER
@@ -779,7 +800,6 @@ function showLoading() {
     app.innerHTML = `
         <div class="loading">
             <div class="spinner"></div>
-            <p>Memuat SinPo Media...</p>
         </div>
     `;
 }
@@ -1322,8 +1342,10 @@ async function renderCategory(categoryId) {
             }
 
 
-            // Update Offset
-            AppState.categoryOffset = news.length; // Set to 20 if full fetch
+            // Update Offset & Tracker
+            AppState.categoryOffset = 20; // Default fetch was 20
+            AppState.seenIds.clear();
+            registerSeenNews(news);
 
             // Check if we have more for "Load More" button 
             // If we got full 20 items, there might be more. 
@@ -1497,49 +1519,52 @@ async function loadMoreNews() {
     const btn = document.getElementById('btn-load-more');
     const container = document.getElementById('latest-news-container');
     
-    if(btn) {
-        btn.innerHTML = '<div class="spinner" style="width:1rem;height:1rem;border-width:2px;"></div> Memuat...';
-        btn.disabled = true;
-    }
+    if (!btn || btn.disabled) return;
 
-    // Tambah offset
-    AppState.latestOffset += AppState.latestLimit;
+    btn.innerHTML = '<div class="btn-spinner"></div> Memuat...';
+    btn.disabled = true;
 
     try {
-        // Fetch berita selanjutnya
+        const fetchLimit = 20; // Fetch larger batch to find unique items
+        const currentOffset = AppState.latestOffset;
+        
         const res = await API.berita.list({ 
-            limit: AppState.latestLimit, 
-            offset: AppState.latestOffset 
+            limit: fetchLimit, 
+            offset: currentOffset 
         });
         
-        const newItems = safeArray(res.data);
+        // Advance offset by the amount fetched
+        AppState.latestOffset += fetchLimit;
+
+        const rawItems = safeArray(res.data);
+        const newItems = filterSeenNews(rawItems).slice(0, 5); // Take only 5 unique
 
         if (newItems.length > 0) {
-            // Append HTML baru
+            registerSeenNews(newItems);
             newItems.forEach(item => {
-                const itemHtml = createTimelineItem(item);
-                // Insert before the button container logic if needed, or append to list wrapper
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = itemHtml;
-                container.appendChild(tempDiv.firstElementChild);
+                if (container) {
+                    const itemHtml = createTimelineItem(item);
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = itemHtml;
+                    container.appendChild(tempDiv.firstElementChild);
+                }
             });
-
-            // Reset button
-            if(btn) {
-                btn.innerHTML = 'Muat Lebih Banyak';
-                btn.disabled = false;
-            }
+            
+            btn.innerHTML = 'Muat Lebih Banyak';
+            btn.disabled = false;
+        } else if (rawItems.length >= fetchLimit) {
+            // No unique items found in this batch, but there's more data in API
+            // Try one more time automatically
+            return loadMoreNews();
         } else {
-            // Jika habis
-            if(btn) {
-                btn.innerHTML = 'Semua berita telah dimuat';
-                btn.disabled = true;
-                btn.style.display = 'none';
-            }
+            // Data benar-benar habis
+            btn.innerHTML = 'Semua berita telah dimuat';
+            btn.disabled = true;
+            btn.style.display = 'none';
         }
     } catch (error) {
         console.error('Gagal memuat berita:', error);
-        if(btn) {
+        if (btn) {
             btn.innerHTML = 'Coba Lagi';
             btn.disabled = false;
         }
@@ -1671,30 +1696,59 @@ async function handleCommentSubmit(event, articleId) {
 // ==========================================
 async function renderHome() {
     try {
-        // 1. Set Pagination State
+        // 1. Reset State
         if (typeof AppState !== 'undefined') {
-            AppState.latestOffset = 9;
+            AppState.seenIds.clear(); 
             AppState.latestLimit = 5;
+            AppState.beritaUtamaLimit = 5;
         }
         
-        // 2. FETCH DATA PARALEL with individual error handling to prevent total failure
-        const [headlineRes, secondaryRes, listRes, initialTimelineRes, sidebarRes, mobilePopularRes, beritaUtamaRes] = await Promise.all([
-            API.berita.headline({ limit: 1 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.list({ limit: 1, offset: 1 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.list({ limit: 3, offset: 2 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.list({ limit: 5, offset: 5 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.populer({ limit: 2 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.populer({ limit: 5 }).catch(err => { console.error(err); return { data: [] }; }),
-            API.berita.list({ limit: 5, offset: 10 }).catch(err => { console.error(err); return { data: [] }; })
+        // 2. FETCH DATA (Unified Force-Load)
+        // Fetch a large pool (60 items) to guarantee enough unique content for all slots
+        const [headlineRes, newsPoolRes, popularRes] = await Promise.all([
+            API.berita.headline({ limit: 1 }).catch(() => ({ data: [] })),
+            API.berita.list({ limit: 60 }).catch(() => ({ data: [] })),
+            API.berita.populer({ limit: 5 }).catch(() => ({ data: [] }))
         ]);
 
+        // 3. Sequential Distribution of Unique Items
+        let pool = safeArray(newsPoolRes?.data);
         const headline = safeArray(headlineRes?.data)[0];
-        const secondary = safeArray(secondaryRes?.data)[0];
-        const listItems = safeArray(listRes?.data);
-        const timelineNews = safeArray(initialTimelineRes?.data);
-        const sidebarNews = safeArray(sidebarRes?.data);
-        const mobilePopularNews = safeArray(mobilePopularRes?.data);
-        const beritaUtamaNews = safeArray(beritaUtamaRes?.data);
+        const allPopular = safeArray(popularRes?.data);
+        
+        // Count how many items from the pool we actually use
+        // to set the next offset correctly
+        let usedFromPoolCount = 0;
+        const getNextUnique = (count) => {
+            const found = [];
+            while (found.length < count && pool.length > 0) {
+                const item = pool.shift();
+                usedFromPoolCount++;
+                if (item && !AppState.seenIds.has(item.id)) {
+                    found.push(item);
+                    registerSeenNews(item);
+                }
+            }
+            return count === 1 ? found[0] : found;
+        };
+
+        // Register headline first
+        if (headline) registerSeenNews(headline);
+
+        // Assign to sections with exact counts
+        const secondary = getNextUnique(1);
+        const listItems = getNextUnique(3);
+        const timelineNews = getNextUnique(5);
+        const beritaUtamaNews = getNextUnique(5);
+
+        // Set Offsets for Load More
+        // We start exactly from the point in the API where we stopped
+        AppState.latestOffset = usedFromPoolCount;
+        AppState.beritaUtamaOffset = usedFromPoolCount;
+
+        // Use the same popular list for both sidebar and mobile to save an API call
+        const sidebarNews = allPopular.slice(0, 2);
+        const mobilePopularNews = allPopular;
 
         const app = document.getElementById('app');
         if (!app) return;
@@ -2325,38 +2379,50 @@ function createBeritaUtamaSection(newsList) {
 // Function to Load More Berita Utama
 async function loadMoreBeritaUtama() {
     const btn = document.getElementById('btn-load-more-utama');
-    if (!btn) return;
+    const container = document.getElementById('berita-utama-container');
+    
+    if (!btn || btn.disabled) return;
 
-    btn.innerHTML = 'Memuat...';
+    btn.innerHTML = '<div class="btn-spinner"></div> Memuat...';
     btn.disabled = true;
 
     try {
-        if (typeof AppState === 'undefined') return;
+        const fetchLimit = 20;
+        const currentOffset = AppState.beritaUtamaOffset || 20;
 
         const res = await API.berita.list({
-            limit: AppState.beritaUtamaLimit || 5,
-            offset: AppState.beritaUtamaOffset || 15
+            limit: fetchLimit,
+            offset: currentOffset
         });
 
-        if (res.success && res.data && res.data.length > 0) {
-            const container = document.getElementById('berita-utama-container');
+        // Advance offset
+        AppState.beritaUtamaOffset = currentOffset + fetchLimit;
+
+        const rawItems = safeArray(res.data);
+        const newItems = filterSeenNews(rawItems).slice(0, 5);
+
+        if (newItems.length > 0) {
+            registerSeenNews(newItems);
             if (container) {
-                res.data.forEach(news => {
-                    container.innerHTML += createBeritaUtamaItem(news);
+                newItems.forEach(news => {
+                    container.insertAdjacentHTML('beforeend', createBeritaUtamaItem(news));
                 });
             }
-
-            // Update Offset
-            AppState.beritaUtamaOffset += AppState.beritaUtamaLimit;
+            btn.innerHTML = 'Muat Lebih Banyak';
+            btn.disabled = false;
+        } else if (rawItems.length >= fetchLimit) {
+            // Try next batch
+            return loadMoreBeritaUtama();
         } else {
-            btn.style.display = 'none'; // Hide if no more data
+            btn.innerHTML = 'Semua berita telah dimuat';
+            btn.disabled = true;
+            btn.style.display = 'none';
         }
 
     } catch (error) {
         console.error('Error loading more main news:', error);
-    } finally {
         if (btn) {
-            btn.innerHTML = 'Muat Lebih Banyak';
+            btn.innerHTML = 'Coba Lagi';
             btn.disabled = false;
         }
     }
@@ -2394,31 +2460,30 @@ async function loadMoreCategoryItems() {
 
     if (loadBtn) {
         const originalText = loadBtn.innerText;
-        loadBtn.innerText = 'Memuat...';
+        loadBtn.innerHTML = '<div class="btn-spinner"></div> Memuat...';
         loadBtn.disabled = true;
     }
 
     try {
-        // AppState.categoryOffset tracks what we have loaded.
-        // renderCategory initial load: 10 items (offset 0). AppState.categoryOffset should be 10?
-        // Note: renderCategory sets AppState.categoryOffset = 0 initially, and fetches 10.
-        // So we should have updated offset to 10 in renderCategory or here. 
-        // Let's assume renderCategory does NOT update it (based on snippet), so we set it properly.
-        // Actually, let's fix renderCategory first to set offset correctly.
-        
-        AppState.categoryOffset += 12; // Load 12 more
+        const fetchLimit = 24; // Fetch more to find unique items
+        const currentOffset = AppState.categoryOffset;
 
         const res = await API.berita.list({ 
             kategori: AppState.currentCategoryId, 
-            limit: 12, 
-            offset: AppState.categoryOffset 
+            limit: fetchLimit, 
+            offset: currentOffset 
         });
         
-        const newItems = safeArray(res.data);
+        // Advance offset
+        AppState.categoryOffset = currentOffset + fetchLimit;
+
+        const rawItems = safeArray(res.data);
+        const newItems = filterSeenNews(rawItems).slice(0, 12); // Take only 12 unique
         
         if (newItems.length > 0) {
+            registerSeenNews(newItems);
+
             newItems.forEach(item => {
-                // Using createTimelineItem explicitly as requested for List view
                 listContainer.insertAdjacentHTML('beforeend', createTimelineItem(item));
             });
             
@@ -2427,13 +2492,16 @@ async function loadMoreCategoryItems() {
                  loadBtn.disabled = false;
             }
             
-            if (newItems.length < 12) {
+            if (newItems.length < 12 && rawItems.length < fetchLimit) {
                 AppState.hasMoreCategory = false;
                  if (loadBtn) {
                     loadBtn.innerText = 'Semua berita dimuat';
                     loadBtn.disabled = true;
                 }
             }
+        } else if (rawItems.length >= fetchLimit) {
+            // Try next batch
+            return loadMoreCategoryItems();
         } else {
             AppState.hasMoreCategory = false;
             if (loadBtn) {
