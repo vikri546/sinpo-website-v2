@@ -222,7 +222,7 @@ function mapNewsItem(raw) {
 
     // 2. Logic "force" display image parsing
     // Prioritize keys that likely contain the full URL or specific filename
-    let imageSrc = raw.gambar_detail || 
+    let rawImage = raw.gambar_detail || 
                    raw.cover || 
                    raw.gambar || 
                    raw.foto || 
@@ -232,7 +232,21 @@ function mapNewsItem(raw) {
                    raw.gambar_utama || 
                    raw.foto_utama || 
                    raw.img || 
-                   raw.url_gambar;
+                   raw.url_gambar ||
+                   raw.feature_image ||
+                   raw.thumb_url ||
+                   raw.image_url ||
+                   raw.cover_url;
+
+    // Handle case where image might be an object
+    let imageSrc = '';
+    if (rawImage) {
+        if (typeof rawImage === 'string') {
+            imageSrc = rawImage;
+        } else if (typeof rawImage === 'object') {
+            imageSrc = rawImage.url || rawImage.path || rawImage.file || '';
+        }
+    }
 
     // If imageSrc is just a filename (no slashes, no http), try to prepend path
     if (imageSrc && typeof imageSrc === 'string' && !imageSrc.startsWith('http') && !imageSrc.includes('/')) {
@@ -858,7 +872,7 @@ function createSidebarCard(news) {
     return `
         <div class="sidebar-news-card" onclick="navigate('article', event, {id: ${news.id}})">
             <div class="${catClass}">${escapeHtml(categoryName)}</div>
-            <img src="${getImageUrl(news.image)}" 
+            <img src="${getImageUrl(news.image || news.cover || news.thumbnail || news.image_url)}" 
                  alt="${escapeHtml(news.title)}"
                  class="sidebar-news-image"
                  onerror="this.src='https://placehold.co/400x300/333/666?text=SinPo'">
@@ -887,9 +901,9 @@ async function renderArticle(id) {
     const relatedLeft = relatedNews.slice(0, 3);
     const relatedRight = relatedNews.slice(3, 6);
 
-    // Split: 2 for "TDK KALAH PENTING", rest for "BERITA TERPOPULER"
+    // Split: 2 for "TDK KALAH PENTING", rest for "BERITA TERPOPULER" (Limit 5)
     const tdkNews = sidebarNews.slice(0, 2);
-    const populerNews = sidebarNews.slice(2);
+    const populerNews = sidebarNews.slice(2, 7);
 
     if (!article) {
         showError('Artikel tidak ditemukan');
@@ -1009,7 +1023,7 @@ async function renderArticle(id) {
                             
                             <!-- Featured Item (First) -->
                             <div class="populer-featured" onclick="navigate('article', event, {id: ${populerNews[0].id}})">
-                                <img src="${getImageUrl(populerNews[0].image)}" alt="${escapeHtml(populerNews[0].title)}" class="populer-featured-img">
+                                <img src="${getImageUrl(populerNews[0].image || populerNews[0].cover || populerNews[0].thumbnail)}" alt="${escapeHtml(populerNews[0].title)}" class="populer-featured-img" onerror="this.src='https://placehold.co/800x450/333/666?text=SinPo'">
                                 <div class="populer-featured-info">
                                     <span class="populer-author">${escapeHtml(getAuthorName(populerNews[0]))}</span>
                                     <span class="populer-date">${formatRelativeTime(populerNews[0].published_at || populerNews[0].created_at)}</span>
@@ -1021,7 +1035,7 @@ async function renderArticle(id) {
                             <div class="populer-list-items">
                                 ${populerNews.slice(1).map(news => `
                                     <div class="populer-list-row" onclick="navigate('article', event, {id: ${news.id}})">
-                                        <img src="${getImageUrl(news.image)}" alt="${escapeHtml(news.title)}" class="populer-list-thumb">
+                                        <img src="${getImageUrl(news.image || news.cover || news.thumbnail)}" alt="${escapeHtml(news.title)}" class="populer-list-thumb" onerror="this.src='https://placehold.co/150x100/333/666?text=SinPo'">
                                         <div class="populer-list-content">
                                             <h4 class="populer-list-title">${escapeHtml(news.title)}</h4>
                                             <div class="populer-list-meta">
@@ -1117,7 +1131,7 @@ async function renderCategory(categoryId) {
             </div>
 
             <!-- Highlight Section (Feature + List + Ad) -->
-            <section class="category-highlight-section" id="category-highlight-section">
+            <section class="category-highlight-section desktop-only" id="category-highlight-section">
                 <!-- Header Removed as per request -->
                 
                 <div class="highlight-grid">
@@ -1708,7 +1722,7 @@ async function renderHome() {
         const [headlineRes, newsPoolRes, popularRes] = await Promise.all([
             API.berita.headline({ limit: 1 }).catch(() => ({ data: [] })),
             API.berita.list({ limit: 60 }).catch(() => ({ data: [] })),
-            API.berita.populer({ limit: 5 }).catch(() => ({ data: [] }))
+            API.berita.populer({ limit: 15 }).catch(() => ({ data: [] }))
         ]);
 
         // 3. Sequential Distribution of Unique Items
@@ -1782,7 +1796,8 @@ async function renderHome() {
             html += `<h3 class="mobile-section-title">Berita Terpopuler</h3>`;
             html += `<div class="mobile-underline"></div>`;
             html += `<div class="mobile-popular-list">`;
-            mobilePopularNews.forEach((news, idx) => {
+            // Limit to exact 5 items for mobile home popular section
+            mobilePopularNews.slice(0, 5).forEach((news, idx) => {
                 html += createMobilePopularItem(news, idx + 1);
             });
             html += `</div></div>`; 
@@ -1833,6 +1848,7 @@ async function renderHome() {
         // Using reusing mobilePopularNews data as requested
         if (mobilePopularNews.length > 0) {
             html += createTrendingSection(mobilePopularNews);
+
             // Inject SIN PO TV Section Here
             html += createSinPoTVSection();
             
@@ -1846,6 +1862,11 @@ async function renderHome() {
         html += `</div>`; // Close container
 
         app.innerHTML = html;
+
+        // --- INITIALIZE CAROUSELS & INTERACTIVE ELEMENTS ---
+        // These MUST be called after app.innerHTML is updated
+        initTrendingDots();
+        initPollingDots();
 
     } catch (error) {
         console.error('Render Home Error:', error);
@@ -2076,39 +2097,105 @@ window.handleCommentSubmit = handleCommentSubmit;
 function createTrendingSection(newsList) {
     if (!newsList || newsList.length === 0) return '';
 
+    // Take up to 15 items, but only in multiples of 5
+    const limit = Math.floor(Math.min(newsList.length, 15) / 5) * 5;
+    if (limit === 0) return ''; // Don't show if less than 5 items
+    
+    const displayList = newsList.slice(0, limit);
+    
+    // Group items into chunks of 5
+    const chunks = [];
+    for (let i = 0; i < displayList.length; i += 5) {
+        chunks.push(displayList.slice(i, i + 5));
+    }
+    
+    const totalPages = chunks.length;
+
     return `
         <div class="trending-section">
             <div class="trending-header">
                 <h2 class="trending-title">TREN HARI INI</h2>
             </div>
             
-            <div class="trending-list">
-                ${newsList.slice(0, 5).map(news => `
-                    <div class="trending-item" onclick="navigate('article', event, {id: ${news.id}})">
-                        <img src="${getImageUrl(news.image || news.cover)}" 
-                             alt="${escapeHtml(news.title)}" 
-                             class="trending-image"
-                             onerror="this.src='https://placehold.co/400x225/333/666?text=SinPo'">
-                        
-                        <div class="trending-content">
-                            <h3 class="trending-item-title">${escapeHtml(news.title)}</h3>
-                            <div class="trending-meta">
-                                <span class="trending-author">${escapeHtml(getAuthorName(news).toUpperCase())}</span>
-                                <span class="trending-date">${formatDate(news.published_at || news.created_at)}</span>
+            <div class="trending-list" id="trending-scroll-container">
+                ${chunks.map((chunk, pageIdx) => `
+                    <div class="trending-page" data-page="${pageIdx}">
+                        ${chunk.map(news => `
+                            <div class="trending-item" onclick="navigate('article', event, {id: ${news.id}})">
+                                <img src="${getImageUrl(news.image || news.cover)}" 
+                                     alt="${escapeHtml(news.title)}" 
+                                     class="trending-image"
+                                     onerror="this.src='https://placehold.co/400x225/333/666?text=SinPo'">
+                                
+                                <div class="trending-content">
+                                    <h3 class="trending-item-title">${escapeHtml(news.title)}</h3>
+                                    <div class="trending-meta">
+                                        <span class="trending-author">${escapeHtml(getAuthorName(news).toUpperCase())}</span>
+                                        <span class="trending-date">${formatDate(news.published_at || news.created_at)}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        `).join('')}
                     </div>
                 `).join('')}
             </div>
 
             <div class="trending-dots">
-                <span class="trending-dot active"></span>
-                <span class="trending-dot"></span>
-                <span class="trending-dot"></span>
+                ${Array.from({ length: totalPages }).map((_, i) => `
+                    <span class="trending-pagination-dot ${i === 0 ? 'active' : ''}" 
+                          data-index="${i}" 
+                          onclick="scrollToTrendingSet(${i})"></span>
+                `).join('')}
             </div>
         </div>
     `;
 }
+
+// Function to scroll to specific page in trending (5 items per page)
+window.scrollToTrendingSet = function(pageIndex) {
+    const container = document.getElementById('trending-scroll-container');
+    if (!container) return;
+
+    const pages = container.querySelectorAll('.trending-page');
+    const targetPage = pages[pageIndex];
+
+    if (targetPage) {
+        const offsetLeft = targetPage.offsetLeft - container.offsetLeft;
+        container.scrollTo({
+            left: offsetLeft,
+            behavior: 'smooth'
+        });
+    }
+};
+
+// Initialize intersection observer or scroll tracking for trending dots
+window.initTrendingDots = function() {
+    const container = document.getElementById('trending-scroll-container');
+    const dotsList = document.querySelector('.trending-dots');
+    
+    if (!container || !dotsList) return;
+
+    const updateActiveDot = () => {
+        const dots = dotsList.querySelectorAll('.trending-pagination-dot');
+        const scrollLeft = container.scrollLeft;
+        const containerWidth = container.clientWidth;
+        
+        if (containerWidth <= 0) return;
+        
+        // Calculate page index more robustly
+        const pageIndex = Math.round(scrollLeft / containerWidth);
+        
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === pageIndex);
+        });
+    };
+
+    container.addEventListener('scroll', updateActiveDot, { passive: true });
+    window.addEventListener('resize', updateActiveDot);
+    
+    // Initial call
+    setTimeout(updateActiveDot, 100);
+};
 
 // ==========================================
 // SIN PO TV SECTION
@@ -2239,7 +2326,8 @@ function createMobilePopularItem(news, number) {
 // ==========================================
 function createPollingSection() {
     // Gunakan data fallback jika API belum siap
-    const polls = POLLING_FALLBACK_DATA; 
+    const polls = typeof POLLING_FALLBACK_DATA !== 'undefined' ? POLLING_FALLBACK_DATA : []; 
+    if (polls.length === 0) return '';
 
     return `
         <section class="polling-section">
@@ -2249,14 +2337,16 @@ function createPollingSection() {
                     <h2 class="polling-sub-title">SUARA ANDA MENENTUKAN</h2>
                 </div>
 
-                <div class="polling-container">
+                <div class="polling-container" id="polling-scroll-container">
                     ${polls.map(poll => createPollingCard(poll)).join('')}
                 </div>
 
                 <!-- Pagination Indicator for Mobile -->
                 <div class="polling-pagination mobile-only">
                     ${polls.map((_, idx) => `
-                        <span class="polling-dot ${idx === 0 ? 'active' : ''}"></span>
+                        <span class="polling-dot ${idx === 0 ? 'active' : ''}" 
+                              data-index="${idx}" 
+                              onclick="scrollToPoll(${idx})"></span>
                     `).join('')}
                 </div>
             </div>
@@ -2316,6 +2406,49 @@ window.selectPollOption = function(pollId, optionId) {
     // Enable button
     const btn = document.getElementById(`btn-vote-${pollId}`);
     if (btn) btn.disabled = false;
+};
+
+// Scroll to specific poll card
+window.scrollToPoll = function(index) {
+    const container = document.getElementById('polling-scroll-container');
+    if (!container) return;
+    
+    const cards = container.querySelectorAll('.polling-card');
+    if (cards[index]) {
+        const offsetLeft = cards[index].offsetLeft - container.offsetLeft;
+        container.scrollTo({
+            left: offsetLeft,
+            behavior: 'smooth'
+        });
+    }
+};
+
+// Initialize intersection observer for polling dots
+window.initPollingDots = function() {
+    const container = document.getElementById('polling-scroll-container');
+    const dots = document.querySelectorAll('.polling-dot');
+    const cards = container?.querySelectorAll('.polling-card');
+    
+    if (!container || !dots.length || !cards?.length) return;
+
+    const observerOptions = {
+        root: container,
+        threshold: 0.6 // Card is considered active when 60% visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const index = Array.from(cards).indexOf(entry.target);
+                if (index !== -1) {
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    if (dots[index]) dots[index].classList.add('active');
+                }
+            }
+        });
+    }, observerOptions);
+
+    cards.forEach(card => observer.observe(card));
 };
 
 // Interaction: Submit Vote
