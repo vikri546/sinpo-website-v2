@@ -760,6 +760,8 @@ function navigate(page, event, params = {}) {
         window.location.hash = `author/${params.id}`;
     } else if (page === 'gallery') {
         window.location.hash = 'gallery';
+    } else if (page === 'search' && params.q) {
+        window.location.hash = `search/${encodeURIComponent(params.q)}`;
     }
     
     renderPage(page, params);
@@ -794,6 +796,9 @@ async function renderPage(page, params) {
                 break;
             case 'gallery':
                 await renderGallery();
+                break;
+            case 'search':
+                await renderSearch(params.id || params.q);
                 break;
             default:
                 await renderHome();
@@ -2029,6 +2034,201 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+/**
+ * Handle Search Trigger from Input
+ */
+function handleSearchKeyPress(event) {
+    if (event.key === 'Enter') {
+        const query = event.target.value.trim();
+        if (query) {
+            executeSearch(query);
+            // Clear input
+            event.target.value = '';
+        }
+    }
+}
+
+/**
+ * Execute Search and Navigate
+ */
+function executeSearch(query) {
+    // Close overlay if it's open
+    closeSearch();
+    
+    // Navigate to search page
+    navigate('search', null, { q: query });
+}
+
+/**
+ * Render Search Results Page
+ */
+async function renderSearch(query) {
+    if (!query) return navigate('home');
+
+    // Fetch recommendations and results in parallel FIRST
+    // This allows the global showLoading() from renderPage to remain active
+    const [resultsRes, recsRes] = await Promise.all([
+        API.berita.list({ q: query, limit: 10, offset: 0 }).catch(() => ({ data: [] })),
+        API.berita.populer({ limit: 10 }).catch(() => ({ data: [] }))
+    ]);
+
+    const app = document.getElementById('app');
+    
+    // Initialize Search State
+    AppState.searchQuery = query;
+    AppState.searchOffset = 0;
+    AppState.hasMoreSearch = true;
+
+    // Render Layout Structure
+    app.innerHTML = `
+        <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+            <div class="search-results-header" style="margin-bottom: 3rem; border-bottom: 2px solid var(--color-primary); padding-bottom: 1rem;">
+                <h1 style="font-size: 1.5rem; font-weight: 700;">HASIL PENCARIAN UNTUK: <span style="color: var(--primary-color); text-transform: uppercase;">"${escapeHtml(query)}"</span></h1>
+            </div>
+            
+            <div class="search-content-grid">
+                <!-- LEFT COLUMN: Main Search Results -->
+                <div class="search-main-col">
+                    <div id="search-results-list" class="berita-utama-left">
+                        <!-- Results will be injected here -->
+                    </div>
+
+                    <!-- Load More Button -->
+                    <div id="search-load-more-container" class="load-more-container text-center hidden" style="margin-top: 3rem;">
+                        <button id="btn-load-more-search" class="btn-load-more" onclick="loadMoreSearchResults()">
+                            Muat Lebih Banyak
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Sidebar (Sticky) -->
+                <aside class="search-sidebar-col">
+                    <div class="search-sidebar-sticky">
+                        <!-- Ad Placeholder -->
+                        <div class="search-ad-placeholder">
+                            <div class="ad-label">ADVERTISEMENT</div>
+                            <div class="ad-9-16">
+                                <img src="https://placehold.co/720x1280/eee/999?text=SinPo+Media+Ads" alt="Ads">
+                            </div>
+                        </div>
+
+                        <!-- Recommendation Section -->
+                        <div id="search-recommendations" class="search-recommendation-box">
+                            <h3 class="recommendation-title">BERITA REKOMENDASI</h3>
+                            <div id="recommendation-list" class="recommendation-list">
+                                <!-- Recommendations injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    `;
+
+    const results = safeArray(resultsRes.data);
+    const resultsList = document.getElementById('search-results-list');
+    const loadMoreContainer = document.getElementById('search-load-more-container');
+
+    // Handle Search Results
+    if (results.length > 0) {
+        resultsList.innerHTML = '';
+        results.forEach(item => {
+            resultsList.innerHTML += createBeritaUtamaItem(item, true); // true = show description
+        });
+
+        AppState.searchOffset = 10;
+        if (results.length >= 10) {
+            loadMoreContainer.classList.remove('hidden');
+        } else {
+            AppState.hasMoreSearch = false;
+        }
+    } else {
+        AppState.hasMoreSearch = false;
+        resultsList.innerHTML = `
+            <div class="no-results" style="text-align: center; padding: 4rem 1rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Tidak ditemukan hasil untuk "${escapeHtml(query)}"</h3>
+                <p style="color: #666;">Coba gunakan kata kunci lain yang lebih umum.</p>
+            </div>
+        `;
+    }
+
+    // Handle Recommendations (berdasarkan berita terbanyak dilihat)
+    const recsList = document.getElementById('recommendation-list');
+    const recsItems = safeArray(recsRes.data).slice(0, 5);
+    
+    if (recsItems.length > 0) {
+        recsList.innerHTML = '';
+        recsItems.forEach((item, index) => {
+            recsList.innerHTML += `
+                <div class="recommendation-item" onclick="navigate('article', event, {id: ${item.id}})">
+                    <span class="recommendation-number">${index + 1}</span>
+                    <div class="recommendation-content">
+                        <h4 class="recommendation-item-title">${escapeHtml(item.title)}</h4>
+                        <div class="recommendation-meta">
+                            <span>${escapeHtml(getAuthorName(item))}</span> • 
+                            <span>${formatDate(item.published_at || item.created_at)}</span>
+                        </div>
+                    </div>
+                </div>
+                ${index < recsItems.length - 1 ? '<div class="recommendation-divider"></div>' : ''}
+            `;
+        });
+    } else {
+        recsList.innerHTML = '<p class="text-center" style="font-size:0.8rem; padding: 1rem; color: #999;">Belum ada rekomendasi.</p>';
+    }
+}
+
+/**
+ * Load More Search Results
+ */
+async function loadMoreSearchResults() {
+    const btn = document.getElementById('btn-load-more-search');
+    const container = document.getElementById('search-results-list');
+    
+    if (!btn || btn.disabled || !AppState.hasMoreSearch) return;
+
+    btn.innerHTML = '<div class="btn-spinner"></div> Memuat...';
+    btn.disabled = true;
+
+    try {
+        const query = AppState.searchQuery;
+        const currentOffset = AppState.searchOffset || 10;
+        const limit = 10;
+
+        const res = await API.berita.list({
+            q: query,
+            limit: limit,
+            offset: currentOffset
+        });
+
+        const newItems = safeArray(res.data);
+        
+        if (newItems.length > 0) {
+            newItems.forEach(item => {
+                container.innerHTML += createBeritaUtamaItem(item, true); // true = show description
+            });
+            
+            AppState.searchOffset = currentOffset + limit;
+            
+            if (newItems.length < limit) {
+                AppState.hasMoreSearch = false;
+                btn.parentElement.classList.add('hidden');
+            }
+        } else {
+            AppState.hasMoreSearch = false;
+            btn.parentElement.classList.add('hidden');
+        }
+    } catch (error) {
+        console.error("Error loading more search results:", error);
+    } finally {
+        if (btn) {
+            btn.innerHTML = 'Muat Lebih Banyak';
+            btn.disabled = false;
+        }
+    }
+}
+
 // ==========================================
 // ROUTER
 // ==========================================
@@ -2040,7 +2240,7 @@ function handleRouteChange() {
     } else {
         const parts = hash.split('/');
         const page = parts[0];
-        const id = parts[1];
+        const id = parts[1] ? decodeURIComponent(parts[1]) : null;
         
         if (page && id) {
             navigate(page, null, { id });
@@ -2561,7 +2761,16 @@ async function loadMoreBeritaUtama() {
     }
 }
 
-function createBeritaUtamaItem(news) {
+function createBeritaUtamaItem(news, showDescription = false) {
+    let summaryText = news.summary || '';
+    
+    // Fallback logic if summary is empty but content exists
+    if (!summaryText && news.content) {
+        summaryText = news.content.replace(/<[^>]*>?/gm, '').substring(0, 160);
+    }
+    
+    const description = showDescription && summaryText ? `<p class="berita-utama-description">${escapeHtml(summaryText)}</p>` : '';
+    
     return `
         <div class="berita-utama-item" onclick="navigate('article', event, {id: ${news.id}})">
             <div class="berita-utama-image-wrapper">
@@ -2574,7 +2783,7 @@ function createBeritaUtamaItem(news) {
             <div class="berita-utama-content">
                 <span class="berita-utama-category">${escapeHtml(formatCategoryName(news.category))}</span>
                 <h3 class="berita-utama-item-title">${escapeHtml(news.title)}</h3>
-                
+                ${description}
                 <div class="berita-utama-meta">
                     <span>${escapeHtml(getAuthorName(news))}</span>
                     <span>•</span>

@@ -67,7 +67,7 @@
 
                 <div class="header-right">
                     <div class="search-bar" id="desktop-search">
-                        <input type="text" placeholder="Cari berita ..." aria-label="Search">
+                        <input type="text" placeholder="Cari berita ..." aria-label="Search" onkeyup="handleSearchKeyPress(event)">
                     </div>
 
                     <button class="btn-search-trigger" onclick="openSearch()" aria-label="Open Search">
@@ -98,7 +98,7 @@
                 <div id="search-overlay" class="search-overlay hidden">
                     <button class="close-search-btn" onclick="closeSearch()">✕</button>
                     <div class="search-container-full">
-                        <input type="text" id="fullscreen-search-input" placeholder="Ketik kata kunci berita..." autocomplete="off">
+                        <input type="text" id="fullscreen-search-input" placeholder="Ketik kata kunci berita..." autocomplete="off" onkeyup="handleSearchKeyPress(event)">
                         <p class="search-hint">Tekan Enter untuk mencari</p>
                     </div>
                 </div>

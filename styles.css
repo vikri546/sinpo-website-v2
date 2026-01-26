@@ -5523,3 +5523,200 @@ body.dark-mode .highlight-ad-placeholder {
     /* Order: Main first, then Sidebar? Or let them stack naturally. 
        Usually sidebar below main content on mobile. */
 }
+
+/* ==========================================
+   SEARCH RESULTS PAGE
+   ========================================== */
+.search-results-header h1 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--color-black);
+    letter-spacing: -0.01em;
+}
+
+body.dark-mode .search-results-header h1 {
+    color: var(--color-white);
+}
+
+.no-results {
+    color: var(--color-gray-500);
+}
+
+body.dark-mode .no-results h3 {
+    color: var(--color-white);
+}
+
+.search-results-header {
+    border-bottom: 2px solid var(--color-primary) !important;
+}
+
+/* ==========================================
+   REFINED SEARCH PAGE (V3)
+   ========================================== */
+
+/* 2-Column Layout */
+.search-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 3rem;
+}
+
+@media (max-width: 1024px) {
+    .search-content-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Sticky Sidebar */
+.search-sidebar-sticky {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+/* Ad 9:16 Utility */
+.ad-9-16 {
+    aspect-ratio: 9/16;
+    width: 100%;
+    background: var(--color-gray-100);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.dark-mode .ad-9-16 {
+    background: var(--color-gray-900);
+}
+
+.ad-9-16 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.search-ad-placeholder .ad-label {
+    font-size: 0.7rem;
+    color: var(--color-gray-400);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Berita Utama Description (Line Clamp) */
+.berita-utama-description {
+    font-size: 0.95rem;
+    color: var(--color-gray-600);
+    line-height: 1.5;
+    margin: 0.75rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.dark-mode .berita-utama-description {
+    color: var(--color-gray-400);
+}
+
+/* Recommendation Box (Shape Background) */
+.search-recommendation-box {
+    background: var(--color-gray-50);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+body.dark-mode .search-recommendation-box {
+    background: var(--color-gray-900);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.recommendation-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary);
+    border-left: 4px solid var(--color-primary);
+    padding-left: 0.75rem;
+}
+
+.recommendation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.recommendation-item {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.recommendation-item:hover {
+    transform: translateX(5px);
+}
+
+.recommendation-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-gray-300);
+    line-height: 1;
+    min-width: 1.5rem;
+}
+
+body.dark-mode .recommendation-number {
+    color: var(--color-gray-700);
+}
+
+.recommendation-item-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 0.4rem;
+    color: var(--color-black);
+}
+
+body.dark-mode .recommendation-item-title {
+    color: var(--color-white);
+}
+
+.recommendation-meta {
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+    font-weight: 500;
+}
+
+.recommendation-divider {
+    height: 1px;
+    background: var(--color-gray-200);
+    width: 100%;
+}
+
+body.dark-mode .recommendation-divider {
+    background: var(--color-gray-800);
+}
+
+/* Loading helper */
+.loading-small {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-gray-200);
+    border-top: 2px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
