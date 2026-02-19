@@ -713,7 +713,7 @@ body.dark-mode .polling-submit-btn:disabled {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: var(--color-white);
     color: var(--color-black);
     transition: background-color 0.3s, color 0.3s;
@@ -1304,7 +1304,7 @@ body.is-loading main > .container:not(.loading) {
 .home-sidebar {
     order: -1;
     position: sticky;
-    top: 100px;
+    top: 165px;
     height: fit-content;
     background: var(--color-gray-50);
     padding: 1.5rem;
@@ -3866,7 +3866,7 @@ body.dark-mode .publisher-divider {
 
 .article-sidebar {
     position: sticky;
-    top: 100px; /* Sticky top offset */
+    top: 165px; /* Sticky top offset - clears 154px header */
     height: fit-content;
     z-index: 10;
 }
