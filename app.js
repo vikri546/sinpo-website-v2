@@ -1872,6 +1872,7 @@ async function renderHome() {
         // These MUST be called after app.innerHTML is updated
         initTrendingDots();
         initPollingDots();
+        initSinPoTV();
 
     } catch (error) {
         console.error('Render Home Error:', error);
@@ -2251,6 +2252,123 @@ function handleRouteChange() {
 }
 
 // ==========================================
+// SIDE PANEL (HAMBURGER MENU)
+// ==========================================
+let sidePanelNewsLoaded = false;
+
+function toggleSidePanel() {
+    const panel = document.getElementById('side-panel');
+    const overlay = document.getElementById('side-panel-overlay');
+    if (!panel || !overlay) return;
+
+    const isOpen = panel.classList.contains('open');
+
+    if (isOpen) {
+        panel.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+    } else {
+        panel.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Load news on first open
+        if (!sidePanelNewsLoaded) {
+            loadSidePanelNews();
+            sidePanelNewsLoaded = true;
+        }
+    }
+}
+
+async function loadSidePanelNews() {
+    try {
+        const [latestRes, popularRes] = await Promise.all([
+            API.berita.list({ limit: 3 }).catch(() => ({ data: [] })),
+            API.berita.populer({ limit: 5 }).catch(() => ({ data: [] }))
+        ]);
+
+        // Render Latest News
+        const latestContainer = document.getElementById('sp-latest-news');
+        const latestItems = safeArray(latestRes.data).slice(0, 3);
+        if (latestContainer) {
+            if (latestItems.length > 0) {
+                latestContainer.innerHTML = latestItems.map(news => `
+                    <div class="sp-news-item" onclick="navigate('article', event, {id: ${news.id}}); toggleSidePanel();">
+                        <img src="${getImageUrl(news.image || news.cover)}" 
+                             alt="${escapeHtml(news.title)}" 
+                             class="sp-news-thumb"
+                             onerror="this.src='https://placehold.co/120x80/eee/999?text=SinPo'">
+                        <div class="sp-news-info">
+                            <h4 class="sp-news-title">${escapeHtml(news.title)}</h4>
+                            <span class="sp-news-date">${formatDate(news.published_at || news.created_at)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                latestContainer.innerHTML = '<p class="sp-empty">Tidak ada berita.</p>';
+            }
+        }
+
+        // Render Popular News
+        const popularContainer = document.getElementById('sp-popular-news');
+        const popularItems = safeArray(popularRes.data).slice(0, 5);
+        if (popularContainer) {
+            if (popularItems.length > 0) {
+                popularContainer.innerHTML = popularItems.map((news, index) => `
+                    <div class="sp-popular-item" onclick="navigate('article', event, {id: ${news.id}}); toggleSidePanel();">
+                        <span class="sp-popular-number">${index + 1}</span>
+                        <h4 class="sp-popular-title">${escapeHtml(news.title)}</h4>
+                    </div>
+                `).join('');
+            } else {
+                popularContainer.innerHTML = '<p class="sp-empty">Tidak ada berita.</p>';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading side panel news:', error);
+    }
+}
+
+function switchAuthTab(tab) {
+    const slides = document.getElementById('sp-auth-slides');
+    const tabs = document.querySelectorAll('.sp-auth-tab');
+    if (!slides || !tabs.length) return;
+
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+
+    if (tab === 'login') {
+        slides.style.transform = 'translateX(-50%)';
+    } else {
+        slides.style.transform = 'translateX(0)';
+    }
+}
+
+function initSidePanel() {
+    // Wire desktop hamburger button
+    const desktopBtn = document.querySelector('.menu-btn-desktop');
+    if (desktopBtn) {
+        desktopBtn.addEventListener('click', toggleSidePanel);
+    }
+    // Wire mobile hamburger button too
+    const mobileBtn = document.querySelector('.menu-btn-mobile');
+    if (mobileBtn) {
+        mobileBtn.addEventListener('click', toggleSidePanel);
+    }
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const panel = document.getElementById('side-panel');
+            if (panel && panel.classList.contains('open')) {
+                toggleSidePanel();
+            }
+        }
+    });
+}
+
+// Make side panel functions global
+window.toggleSidePanel = toggleSidePanel;
+window.switchAuthTab = switchAuthTab;
+
+// ==========================================
 // APPLICATION INITIALIZATION
 // ==========================================
 function init() {
@@ -2258,6 +2376,9 @@ function init() {
     
     // Initialize theme
     initTheme();
+    
+    // Initialize side panel
+    initSidePanel();
     
     // Handle initial route
     handleRouteChange();
@@ -2398,92 +2519,206 @@ window.initTrendingDots = function() {
 };
 
 // ==========================================
-// SIN PO TV SECTION
-// ==========================================
-// ==========================================
-// SIN PO TV SECTION
+// SIN PO TV SECTION (YouTube RSS Feed)
 // ==========================================
 
-// Global variable to hold TV playlist (simulated)
-const SINPO_TV_PLAYLIST = [
-    { id: 1, title: "PIMPINAN DPR RI TERIMA AUDIENSI SOLIDARITAS HAKIM INDONESIA", time: "00:01:44", img: "https://placehold.co/800x450/333/fff?text=VIDEO+1", thumb: "https://placehold.co/120x70/333/fff?text=Video+1" },
-    { id: 2, title: "SITUASI TERKINI DI GEDUNG KPU PASCA PENETAPAN", time: "00:02:15", img: "https://placehold.co/800x450/444/fff?text=VIDEO+2", thumb: "https://placehold.co/120x70/444/fff?text=Video+2" },
-    { id: 3, title: "WAWANCARA EKSKLUSIF DENGAN CALON GUBERNUR", time: "00:05:30", img: "https://placehold.co/800x450/555/fff?text=VIDEO+3", thumb: "https://placehold.co/120x70/555/fff?text=Video+3" },
-    { id: 4, title: "PENGUMUMAN HASIL SURVEY TERBARU INDIKATOR", time: "00:03:20", img: "https://placehold.co/800x450/666/fff?text=VIDEO+4", thumb: "https://placehold.co/120x70/666/fff?text=Video+4" },
-    { id: 5, title: "KONFERENSI PERS TERKAIT ISU PENCALONAN", time: "00:01:10", img: "https://placehold.co/800x450/777/fff?text=VIDEO+5", thumb: "https://placehold.co/120x70/777/fff?text=Video+5" }
-];
+const SINPO_TV_CHANNEL_ID = 'UCKlCoYf-khqH1bCRTA2os6A';
+const SINPO_TV_RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${SINPO_TV_CHANNEL_ID}`;
+const SINPO_TV_VIDEO_COUNT = 5;
 
-function switchTvVideo(id) {
-    const video = SINPO_TV_PLAYLIST.find(item => item.id === id);
+// Cache for fetched videos
+let sinpoTvVideos = [];
+
+/**
+ * Fetch latest videos from YouTube RSS feed
+ */
+async function fetchYouTubeVideos() {
+    // Return cached if available
+    if (sinpoTvVideos.length > 0) return sinpoTvVideos;
+
+    const CORS_PROXIES = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(SINPO_TV_RSS_URL)}`,
+        `https://corsproxy.io/?${encodeURIComponent(SINPO_TV_RSS_URL)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(SINPO_TV_RSS_URL)}`
+    ];
+
+    for (const proxyUrl of CORS_PROXIES) {
+        try {
+            const response = await fetch(proxyUrl);
+            if (!response.ok) continue;
+
+            const xmlText = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(xmlText, 'application/xml');
+
+            const entries = xml.querySelectorAll('entry');
+            if (!entries || entries.length === 0) continue;
+
+            const videos = [];
+            const count = Math.min(entries.length, SINPO_TV_VIDEO_COUNT);
+
+            for (let i = 0; i < count; i++) {
+                const entry = entries[i];
+                const videoId = entry.querySelector('videoId')?.textContent || '';
+                const title = entry.querySelector('title')?.textContent || 'Untitled';
+                const published = entry.querySelector('published')?.textContent || '';
+                const thumbnail = entry.querySelector('thumbnail');
+                const thumbUrl = thumbnail?.getAttribute('url') || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+                const stats = entry.querySelector('statistics');
+                const views = stats?.getAttribute('views') || '0';
+
+                if (videoId) {
+                    videos.push({
+                        id: videoId,
+                        title: title,
+                        thumb: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                        thumbSmall: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                        published: published,
+                        views: parseInt(views, 10),
+                        url: `https://www.youtube.com/watch?v=${videoId}`
+                    });
+                }
+            }
+
+            if (videos.length > 0) {
+                sinpoTvVideos = videos;
+                console.log(`✅ Fetched ${videos.length} videos from YouTube RSS`);
+                return videos;
+            }
+        } catch (err) {
+            console.warn('CORS proxy failed, trying next...', err);
+        }
+    }
+
+    // Fallback to empty - section will show loading state
+    console.warn('⚠️ All YouTube RSS proxies failed');
+    return [];
+}
+
+/**
+ * Format relative time for video publish date
+ */
+function formatVideoDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHrs = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMin < 60) return `${diffMin} menit lalu`;
+        if (diffHrs < 24) return `${diffHrs} jam lalu`;
+        if (diffDays < 7) return `${diffDays} hari lalu`;
+        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+        return '';
+    }
+}
+
+/**
+ * Format view count
+ */
+function formatViews(views) {
+    if (!views || views === 0) return '';
+    if (views >= 1000000) return `${(views / 1000000).toFixed(1)}M views`;
+    if (views >= 1000) return `${(views / 1000).toFixed(1)}K views`;
+    return `${views} views`;
+}
+
+/**
+ * Select a video (swap thumbnail, don't auto-play)
+ */
+function selectTvVideo(videoId) {
+    const video = sinpoTvVideos.find(v => v.id === videoId);
     if (!video) return;
 
-    // Update Main Video Image
-    const mainImage = document.getElementById('tv-main-image');
-    if (mainImage) mainImage.src = video.img;
+    // Reset to thumbnail view (remove iframe if any)
+    const playerContainer = document.getElementById('tv-player-container');
+    if (playerContainer) {
+        playerContainer.innerHTML = `
+            <img 
+                id="tv-main-image" 
+                src="${video.thumb}" 
+                alt="${video.title}" 
+                class="tv-video-thumbnail"
+                onclick="playTvVideo('${videoId}')"
+                style="cursor: pointer;">
+            
+            <div class="tv-overlay-label">
+                <span>BREAKING NEWS</span>
+            </div>
 
-    // Update Headline Text
+            <div class="tv-play-btn" onclick="playTvVideo('${videoId}')">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            </div>
+        `;
+    }
+
+    // Make sure overlays are visible (remove playing state)
+    const mainVideo = document.querySelector('.tv-main-video');
+    if (mainVideo) mainVideo.classList.remove('playing');
+
+    // Update title overlay
     const headline = document.getElementById('tv-main-headline');
     if (headline) headline.textContent = video.title;
 
-    // Update Currently Playing Overlay
+    // Update currently playing title in sidebar
     const currentPlayingTitle = document.getElementById('tv-current-playing-title');
     if (currentPlayingTitle) currentPlayingTitle.textContent = video.title;
+
+    // Update active state in playlist
+    document.querySelectorAll('.tv-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.videoId === videoId);
+    });
 }
 
-function createSinPoTVSection() {
-    // Default show first video
-    const currentVideo = SINPO_TV_PLAYLIST[0];
+/**
+ * Play a video (embed YouTube iframe)
+ */
+function playTvVideo(videoId) {
+    const video = sinpoTvVideos.find(v => v.id === videoId);
+    if (!video) return;
 
+    const playerContainer = document.getElementById('tv-player-container');
+    if (playerContainer) {
+        playerContainer.innerHTML = `
+            <iframe 
+                src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+                title="${video.title}"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                class="tv-youtube-iframe">
+            </iframe>
+        `;
+    }
+
+    // Hide overlays when video is playing
+    const mainVideo = document.querySelector('.tv-main-video');
+    if (mainVideo) mainVideo.classList.add('playing');
+}
+
+// Keep switchTvVideo as alias for play (used by first video click)
+function switchTvVideo(videoId) {
+    playTvVideo(videoId);
+}
+
+/**
+ * Create the SIN PO TV section (with loading state, fetches on render)
+ */
+function createSinPoTVSection() {
     return `
         <section class="sinpo-tv-section">
             <div class="container">
                 <div class="sinpo-tv-header">
                     <h2 class="sinpo-tv-title">SIN PO TV</h2>
-                    <!-- Subtitle Removed -->
                 </div>
 
-                <div class="sinpo-tv-container">
-                    <!-- Main Video -->
-                    <div class="tv-main-video">
-                        <img id="tv-main-image" src="${currentVideo.img}" alt="Main Video" class="tv-video-thumbnail">
-                        
-                        <div class="tv-overlay-label">
-                            <span>BREAKING NEWS</span>
-                        </div>
-
-                        <div class="tv-play-btn">
-                            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                        </div>
-
-                        <div class="tv-video-info-overlay">
-                            <div class="tv-headline-overlay">
-                                <h3 id="tv-main-headline" class="tv-headline-text">${currentVideo.title}</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar Playlist -->
-                    <div class="tv-playlist">
-                        <div class="tv-playlist-header">
-                            <div>
-                                <div class="tv-header-info">Currently playing ...</div>
-                                <div id="tv-current-playing-title" class="tv-header-title">${currentVideo.title}</div>
-                            </div>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                        </div>
-                        <div class="tv-playlist-items">
-                            ${SINPO_TV_PLAYLIST.map(item => `
-                                <div class="tv-item" onclick="switchTvVideo(${item.id})">
-                                    <img src="${item.thumb}" alt="Thumb" class="tv-item-thumb">
-                                    <div class="tv-item-info">
-                                        <div class="tv-item-title">${item.title}</div>
-                                        <div class="tv-item-duration">${item.time}</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
+                <div id="sinpo-tv-content" class="sinpo-tv-container">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 300px; color: #999;">
+                        <div class="spinner"></div>
                     </div>
                 </div>
 
@@ -2503,8 +2738,102 @@ function createSinPoTVSection() {
     `;
 }
 
-// Ensure function is global
+/**
+ * Initialize SIN PO TV: fetch videos and render into the section
+ */
+async function initSinPoTV() {
+    const container = document.getElementById('sinpo-tv-content');
+    if (!container) return;
+
+    const videos = await fetchYouTubeVideos();
+
+    if (!videos || videos.length === 0) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 200px; color: #999; flex-direction: column; gap: 1rem;">
+                <p>Gagal memuat video. Kunjungi channel kami di YouTube.</p>
+                <a href="https://youtube.com/@sinpotv" target="_blank" rel="noopener noreferrer" 
+                   style="background: red; color: white; padding: 0.5rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: 700;">
+                    Buka YouTube
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    const currentVideo = videos[0];
+
+    container.innerHTML = `
+        <!-- Main Video Player -->
+        <div class="tv-main-video">
+            <div id="tv-player-container" class="tv-player-wrapper">
+                <img 
+                    id="tv-main-image" 
+                    src="${currentVideo.thumb}" 
+                    alt="${currentVideo.title}" 
+                    class="tv-video-thumbnail"
+                    onclick="switchTvVideo('${currentVideo.id}')"
+                    style="cursor: pointer;">
+                
+                <div class="tv-overlay-label">
+                    <span>BREAKING NEWS</span>
+                </div>
+
+                <div class="tv-play-btn" onclick="switchTvVideo('${currentVideo.id}')">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                </div>
+            </div>
+
+            <div class="tv-video-info-overlay">
+                <div class="tv-headline-overlay">
+                    <h3 id="tv-main-headline" class="tv-headline-text">${currentVideo.title}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Playlist -->
+        <div class="tv-playlist">
+            <div class="tv-playlist-header">
+                <div>
+                    <div class="tv-header-info">Sedang diputar ...</div>
+                    <div id="tv-current-playing-title" class="tv-header-title">${currentVideo.title}</div>
+                </div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+            </div>
+            <div class="tv-playlist-items">
+                ${videos.map((video, index) => `
+                    <div class="tv-item ${index === 0 ? 'active' : ''}" data-video-id="${video.id}" onclick="selectTvVideo('${video.id}')">
+                        <div class="tv-item-thumb-wrapper">
+                            <img src="${video.thumbSmall}" alt="${video.title}" class="tv-item-thumb">
+                            <div class="tv-item-play-icon">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="tv-item-info">
+                            <div class="tv-item-title">${video.title}</div>
+                            <div class="tv-item-meta">
+                                ${formatVideoDate(video.published)}${video.views > 0 ? ' • ' + formatViews(video.views) : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <a href="https://youtube.com/@sinpotv" target="_blank" rel="noopener noreferrer" class="tv-view-all-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.007 2.007 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.007 2.007 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31.4 31.4 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.007 2.007 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A99.788 99.788 0 0 1 7.858 2h.193zM6.4 5.209v4.818l4.157-2.408L6.4 5.209z"/>
+                </svg>
+                Lihat Semua di YouTube
+            </a>
+        </div>
+    `;
+}
+
+// Ensure functions are global
 window.switchTvVideo = switchTvVideo;
+window.selectTvVideo = selectTvVideo;
+window.playTvVideo = playTvVideo;
+window.initSinPoTV = initSinPoTV;
 
 function createMobilePopularItem(news, number) {
     return `

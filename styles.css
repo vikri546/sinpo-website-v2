@@ -47,6 +47,14 @@ body.dark-mode .sinpo-tv-section {
     overflow: hidden;
     border-radius: 4px;
     box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+    aspect-ratio: 16/9;
+}
+
+/* Hide overlay elements when video is playing */
+.tv-main-video.playing .tv-video-info-overlay,
+.tv-main-video.playing .tv-play-btn,
+.tv-main-video.playing .tv-overlay-label {
+    display: none;
 }
 
 .tv-video-thumbnail {
@@ -250,6 +258,92 @@ body.dark-mode .sinpo-tv-section {
 .tv-item-duration {
     font-size: 0.75rem;
     color: #666;
+}
+
+/* YouTube Iframe Player */
+.tv-player-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.tv-youtube-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Active playlist item */
+.tv-item.active {
+    background: #252525;
+    border-left: 3px solid #D91B1B;
+}
+
+/* Thumb wrapper with play icon overlay */
+.tv-item-thumb-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    width: 120px;
+    height: 70px;
+}
+
+.tv-item-thumb-wrapper .tv-item-thumb {
+    width: 100%;
+    height: 100%;
+}
+
+.tv-item-play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.tv-item:hover .tv-item-play-icon {
+    opacity: 1;
+}
+
+/* Video meta (date + views) */
+.tv-item-meta {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.15rem;
+}
+
+/* View All on YouTube button */
+.tv-view-all-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: #D91B1B;
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 0.3s;
+}
+
+.tv-view-all-btn:hover {
+    background: #b91515;
 }
 
 /* Ad Banner */
@@ -784,6 +878,12 @@ body.dark-mode .header-top {
     cursor: pointer;
     font-family: inherit;
     letter-spacing: 0.05em;
+    text-decoration: none;
+}
+
+body.dark-mode .btn-tv {
+    background: white;
+    color: black;
 }
 
 .btn-tv .dot {
@@ -5719,4 +5819,508 @@ body.dark-mode .recommendation-divider {
     border-top: 2px solid var(--color-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+/* ==========================================
+   SIDE PANEL (HAMBURGER MENU)
+   ========================================== */
+
+/* Overlay */
+.side-panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    backdrop-filter: blur(2px);
+}
+
+.side-panel-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Panel */
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 90vw;
+    height: 100vh;
+    background: var(--color-white);
+    z-index: 1999;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.side-panel.open {
+    transform: translateX(0);
+}
+
+body.dark-mode .side-panel {
+    background: #111;
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Panel Header */
+.sp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .sp-header {
+    border-bottom-color: var(--color-gray-800);
+}
+
+.sp-logo {
+    text-decoration: none;
+    font-family: 'Oswald', sans-serif;
+}
+
+.sp-logo .sinpo-text {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-black);
+}
+
+.sp-logo .id-text {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-primary);
+}
+
+body.dark-mode .sp-logo .sinpo-text {
+    color: var(--color-white);
+}
+
+.sp-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-500);
+    padding: 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sp-close-btn:hover {
+    background: var(--color-gray-100);
+    color: var(--color-black);
+}
+
+body.dark-mode .sp-close-btn:hover {
+    background: var(--color-gray-800);
+    color: var(--color-white);
+}
+
+/* Panel Body */
+.sp-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.sp-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sp-body::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 2px;
+}
+
+body.dark-mode .sp-body::-webkit-scrollbar-thumb {
+    background: var(--color-gray-700);
+}
+
+/* Section */
+.sp-section {
+    margin-bottom: 2rem;
+}
+
+.sp-section:last-child {
+    margin-bottom: 0;
+}
+
+.sp-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-primary);
+    display: inline-block;
+}
+
+/* Latest News Items */
+.sp-latest-news {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sp-news-item {
+    display: flex;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.sp-news-item:hover {
+    background: var(--color-gray-50);
+}
+
+body.dark-mode .sp-news-item:hover {
+    background: var(--color-gray-800);
+}
+
+.sp-news-thumb {
+    width: 80px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.sp-news-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.sp-news-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-black);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+body.dark-mode .sp-news-title {
+    color: var(--color-white);
+}
+
+.sp-news-date {
+    font-size: 0.65rem;
+    color: var(--color-gray-500);
+    margin-top: 0.25rem;
+}
+
+/* Popular News Items */
+.sp-popular-news {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.sp-popular-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid var(--color-gray-100);
+    transition: background 0.2s;
+}
+
+.sp-popular-item:last-child {
+    border-bottom: none;
+}
+
+.sp-popular-item:hover {
+    background: var(--color-gray-50);
+}
+
+body.dark-mode .sp-popular-item {
+    border-bottom-color: var(--color-gray-800);
+}
+
+body.dark-mode .sp-popular-item:hover {
+    background: var(--color-gray-800);
+}
+
+.sp-popular-number {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-gray-200);
+    line-height: 1;
+    min-width: 2rem;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+}
+
+body.dark-mode .sp-popular-number {
+    color: var(--color-gray-700);
+}
+
+.sp-popular-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-black);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    flex: 1;
+}
+
+body.dark-mode .sp-popular-title {
+    color: var(--color-white);
+}
+
+/* Auth Section */
+.sp-auth-section {
+    background: var(--color-gray-50);
+    border-radius: 10px;
+    padding: 1.25rem !important;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+body.dark-mode .sp-auth-section {
+    background: var(--color-gray-900);
+}
+
+.sp-auth-greeting {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-black);
+    margin: 0 0 1rem;
+}
+
+body.dark-mode .sp-auth-greeting {
+    color: var(--color-white);
+}
+
+.sp-auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1rem;
+    background: var(--color-gray-200);
+    border-radius: 6px;
+    padding: 3px;
+}
+
+body.dark-mode .sp-auth-tabs {
+    background: var(--color-gray-800);
+}
+
+.sp-auth-tab {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 4px;
+    transition: all 0.25s ease;
+}
+
+.sp-auth-tab.active {
+    background: var(--color-white);
+    color: var(--color-black);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .sp-auth-tab.active {
+    background: var(--color-gray-700);
+    color: var(--color-white);
+}
+
+/* Auth Slider */
+.sp-auth-slider {
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+.sp-auth-slides {
+    display: flex;
+    width: 200%;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sp-auth-slide {
+    width: 50%;
+    flex-shrink: 0;
+}
+
+/* Form Styles */
+.sp-form-group {
+    margin-bottom: 0.75rem;
+}
+
+.sp-form-group label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--color-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+}
+
+body.dark-mode .sp-form-group label {
+    color: var(--color-gray-400);
+}
+
+.sp-form-group input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: var(--color-white);
+    color: var(--color-black);
+    transition: border-color 0.2s;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.sp-form-group input:focus {
+    border-color: var(--color-primary);
+}
+
+body.dark-mode .sp-form-group input {
+    background: var(--color-gray-800);
+    color: var(--color-white);
+    border-color: var(--color-gray-700);
+}
+
+body.dark-mode .sp-form-group input:focus {
+    border-color: var(--color-primary);
+}
+
+.sp-auth-submit {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 0.3s;
+    margin-top: 0.25rem;
+}
+
+.sp-auth-submit:hover {
+    background: #b91515;
+}
+
+.sp-forgot-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--color-gray-500);
+    font-size: 0.75rem;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    padding: 0.25rem;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.sp-forgot-btn:hover {
+    color: var(--color-primary);
+}
+
+/* Loading & Empty States */
+.sp-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.sp-empty {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Panel Footer */
+.sp-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-gray-200);
+    text-align: center;
+}
+
+body.dark-mode .sp-footer {
+    border-top-color: var(--color-gray-800);
+}
+
+.sp-socials {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.sp-socials a {
+    color: var(--color-gray-500);
+    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-gray-100);
+}
+
+.sp-socials a:hover {
+    color: var(--color-primary);
+    background: var(--color-gray-200);
+    transform: translateY(-2px);
+}
+
+body.dark-mode .sp-socials a {
+    background: var(--color-gray-800);
+    color: var(--color-gray-400);
+}
+
+body.dark-mode .sp-socials a:hover {
+    background: var(--color-gray-700);
+    color: var(--color-primary);
+}
+
+.sp-copyright {
+    font-size: 0.65rem;
+    color: var(--color-gray-400);
+    margin: 0;
 }
