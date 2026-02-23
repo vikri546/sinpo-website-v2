@@ -2749,12 +2749,25 @@ async function initSinPoTV() {
 
     if (!videos || videos.length === 0) {
         container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 200px; color: #999; flex-direction: column; gap: 1rem;">
-                <p>Gagal memuat video. Kunjungi channel kami di YouTube.</p>
-                <a href="https://youtube.com/@sinpotv" target="_blank" rel="noopener noreferrer" 
-                   style="background: red; color: white; padding: 0.5rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: 700;">
-                    Buka YouTube
-                </a>
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 200px; color: #999; flex-direction: column; gap: 1rem; text-align: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#666" viewBox="0 0 16 16">
+                    <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.007 2.007 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.007 2.007 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31.4 31.4 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.007 2.007 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A99.788 99.788 0 0 1 7.858 2h.193zM6.4 5.209v4.818l4.157-2.408L6.4 5.209z"/>
+                </svg>
+                <p style="margin: 0; font-size: 0.9rem;">Gagal memuat video. Coba muat ulang atau kunjungi channel kami.</p>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                    <button onclick="retrySinPoTV()" 
+                        style="background: #333; color: white; padding: 0.5rem 1.5rem; border-radius: 4px; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                        </svg>
+                        Muat Ulang
+                    </button>
+                    <a href="https://youtube.com/@sinpotv" target="_blank" rel="noopener noreferrer" 
+                       style="background: #D91B1B; color: white; padding: 0.5rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.85rem;">
+                        Buka YouTube
+                    </a>
+                </div>
             </div>
         `;
         return;
@@ -2829,11 +2842,33 @@ async function initSinPoTV() {
     `;
 }
 
+/**
+ * Retry loading SIN PO TV videos (clear cache and re-fetch)
+ */
+async function retrySinPoTV() {
+    const container = document.getElementById('sinpo-tv-content');
+    if (!container) return;
+
+    // Show loading spinner
+    container.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 300px; color: #999;">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    // Clear cache so fetchYouTubeVideos tries again
+    sinpoTvVideos = [];
+
+    // Re-init
+    await initSinPoTV();
+}
+
 // Ensure functions are global
 window.switchTvVideo = switchTvVideo;
 window.selectTvVideo = selectTvVideo;
 window.playTvVideo = playTvVideo;
 window.initSinPoTV = initSinPoTV;
+window.retrySinPoTV = retrySinPoTV;
 
 function createMobilePopularItem(news, number) {
     return `
