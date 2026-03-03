@@ -682,6 +682,15 @@ function safeArray(data) {
     return Array.isArray(data) ? data : [];
 }
 
+// Debounce utility
+let _debounceTimers = {};
+function debounce(fn, delay, key = 'default') {
+    return function(...args) {
+        clearTimeout(_debounceTimers[key]);
+        _debounceTimers[key] = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 // Fix content images to absolute URLs
 function fixContentImages(html) {
     if (!html) return '';
@@ -880,6 +889,7 @@ function createSidebarCard(news) {
             <img src="${getImageUrl(news.image || news.cover || news.thumbnail || news.image_url)}" 
                  alt="${escapeHtml(news.title)}"
                  class="sidebar-news-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/400x300/333/666?text=SinPo'">
             <h4 class="sidebar-news-title">${escapeHtml(news.title)}</h4>
         </div>
@@ -966,6 +976,7 @@ async function renderArticle(id) {
                         <img src="${getImageUrl(article.image || article.cover)}" 
                              alt="${escapeHtml(article.title)}" 
                              class="article-image"
+                             loading="lazy"
                              onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
                         ${article.cover_credit ? `<p class="image-credit">${escapeHtml(article.cover_credit)}</p>` : ''}
                         <div class="article-content">
@@ -1028,7 +1039,7 @@ async function renderArticle(id) {
                             
                             <!-- Featured Item (First) -->
                             <div class="populer-featured" onclick="navigate('article', event, {id: ${populerNews[0].id}})">
-                                <img src="${getImageUrl(populerNews[0].image || populerNews[0].cover || populerNews[0].thumbnail)}" alt="${escapeHtml(populerNews[0].title)}" class="populer-featured-img" onerror="this.src='https://placehold.co/800x450/333/666?text=SinPo'">
+                                <img src="${getImageUrl(populerNews[0].image || populerNews[0].cover || populerNews[0].thumbnail)}" alt="${escapeHtml(populerNews[0].title)}" class="populer-featured-img" loading="lazy" onerror="this.src='https://placehold.co/800x450/333/666?text=SinPo'">
                                 <div class="populer-featured-info">
                                     <span class="populer-author">${escapeHtml(getAuthorName(populerNews[0]))}</span>
                                     <span class="populer-date">${formatRelativeTime(populerNews[0].published_at || populerNews[0].created_at)}</span>
@@ -1040,7 +1051,7 @@ async function renderArticle(id) {
                             <div class="populer-list-items">
                                 ${populerNews.slice(1).map(news => `
                                     <div class="populer-list-row" onclick="navigate('article', event, {id: ${news.id}})">
-                                        <img src="${getImageUrl(news.image || news.cover || news.thumbnail)}" alt="${escapeHtml(news.title)}" class="populer-list-thumb" onerror="this.src='https://placehold.co/150x100/333/666?text=SinPo'">
+                                        <img src="${getImageUrl(news.image || news.cover || news.thumbnail)}" alt="${escapeHtml(news.title)}" class="populer-list-thumb" loading="lazy" onerror="this.src='https://placehold.co/150x100/333/666?text=SinPo'">
                                         <div class="populer-list-content">
                                             <h4 class="populer-list-title">${escapeHtml(news.title)}</h4>
                                             <div class="populer-list-meta">
@@ -1282,7 +1293,7 @@ async function renderCategory(categoryId) {
                 highFeatureEl.innerHTML = `
                     <div class="highlight-feature-img-wrapper" onclick="navigate('article', event, {id: ${featItem.id}})">
                         <img src="${getImageUrl(featItem.image || featItem.cover)}" class="highlight-feature-img" alt="${escapeHtml(featItem.title)}" 
-                        onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
+                        loading="lazy" onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
                     </div>
                     <div class="highlight-feature-content">
                         <div class="highlight-meta" style="margin-bottom:0.5rem; margin-top:0;">
@@ -1303,7 +1314,7 @@ async function renderCategory(categoryId) {
                             <div class="highlight-list-card" onclick="navigate('article', event, {id: ${item.id}})">
                                 <div class="highlight-list-img-wrapper">
                                     <img src="${getImageUrl(item.image || item.cover)}" class="highlight-list-img" alt="${escapeHtml(item.title)}"
-                                    onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
+                                    loading="lazy" onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
                                 </div>
                                 <div class="highlight-list-content">
                                     <div class="highlight-meta" style="margin-top:0; margin-bottom:0.3rem;">
@@ -1436,6 +1447,7 @@ async function renderAuthor(authorId) {
                 <img src="${author.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(author.name)}&background=D91B1B&color=fff&size=256`}" 
                      alt="${escapeHtml(author.name)}" 
                      class="author-avatar"
+                     loading="lazy"
                      onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(author.name)}&background=D91B1B&color=fff&size=256'">
                 <div class="author-info">
                     <h1 class="author-name">${escapeHtml(author.name)}</h1>
@@ -1515,6 +1527,7 @@ function createTimelineItem(news) {
                 <img src="${getImageUrl(news.image || news.cover)}" 
                      alt="${escapeHtml(news.title)}" 
                      class="timeline-image"
+                     loading="lazy"
                      onerror="this.src='https://placehold.co/400x300/eee/999?text=SinPo'">
             </div>
 
@@ -1599,6 +1612,7 @@ function createNewsCard(news) {
             <img src="${getImageUrl(news.image || news.cover)}" 
                  alt="${escapeHtml(news.title)}" 
                  class="news-card-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
             <div class="news-card-content">
                 <span class="news-card-category">${escapeHtml(formatCategoryName(news.category))}</span>
@@ -1618,6 +1632,7 @@ function createPhotoCard(photo) {
             <img src="${getImageUrl(photo.image)}" 
                  alt="${escapeHtml(photo.title)}" 
                  class="photo-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/600x400/eee/999?text=SinPo+Media'">
             <div class="photo-overlay">
                 <h4 class="photo-title">${escapeHtml(photo.title)}</h4>
@@ -1632,6 +1647,7 @@ function createGalleryCard(gallery) {
             <img src="${getImageUrl(gallery.image)}" 
                  alt="${escapeHtml(gallery.title)}" 
                  class="gallery-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/600x400/eee/999?text=SinPo+Media'">
             <h4 class="gallery-title">${escapeHtml(gallery.title)}</h4>
         </div>
@@ -1896,6 +1912,7 @@ function createFeaturedMain(news) {
             <img src="${getImageUrl(news.image || news.cover)}" 
                  alt="${escapeHtml(news.title)}" 
                  class="featured-main-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/1200x800/000/333?text=SinPo+Media'">
             
             <div class="featured-main-overlay">
@@ -1935,6 +1952,7 @@ function createFeaturedSecondary(news) {
             <img src="${getImageUrl(news.image || news.cover)}" 
                  alt="${escapeHtml(news.title)}" 
                  class="featured-secondary-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/800x600/000/333?text=SinPo+Media'">
             
             <div class="featured-secondary-overlay">
@@ -1991,6 +2009,7 @@ function createFeaturedListItem(news) {
             <img src="${getImageUrl(news.image || news.cover)}" 
                  alt="${escapeHtml(news.title)}" 
                  class="featured-list-image"
+                 loading="lazy"
                  onerror="this.src='https://placehold.co/200x200/eee/999?text=SinPo'">
             <div class="featured-list-content">
                 <h4 class="featured-list-title">${escapeHtml(news.title)}</h4>
@@ -2042,9 +2061,23 @@ function handleSearchKeyPress(event) {
     if (event.key === 'Enter') {
         const query = event.target.value.trim();
         if (query) {
+            // Clear any pending debounced search
+            clearTimeout(_debounceTimers['search']);
             executeSearch(query);
             // Clear input
             event.target.value = '';
+        }
+    } else {
+        // Debounced real-time search hint (only for fullscreen overlay input)
+        const input = event.target;
+        if (input.id === 'fullscreen-search-input') {
+            debounce(() => {
+                const q = input.value.trim();
+                const hint = document.querySelector('.search-hint');
+                if (hint) {
+                    hint.textContent = q ? `Tekan Enter untuk mencari "${q}"` : 'Tekan Enter untuk mencari';
+                }
+            }, 400, 'search')();
         }
     }
 }
@@ -2296,6 +2329,7 @@ async function loadSidePanelNews() {
                         <img src="${getImageUrl(news.image || news.cover)}" 
                              alt="${escapeHtml(news.title)}" 
                              class="sp-news-thumb"
+                             loading="lazy"
                              onerror="this.src='https://placehold.co/120x80/eee/999?text=SinPo'">
                         <div class="sp-news-info">
                             <h4 class="sp-news-title">${escapeHtml(news.title)}</h4>
@@ -2446,6 +2480,7 @@ function createTrendingSection(newsList) {
                                 <img src="${getImageUrl(news.image || news.cover)}" 
                                      alt="${escapeHtml(news.title)}" 
                                      class="trending-image"
+                                     loading="lazy"
                                      onerror="this.src='https://placehold.co/400x225/333/666?text=SinPo'">
                                 
                                 <div class="trending-content">
@@ -3016,23 +3051,35 @@ window.initPollingDots = function() {
 };
 
 // Interaction: Submit Vote
-window.submitVote = function(pollId) {
+window.submitVote = async function(pollId) {
+    const card = document.getElementById(`poll-card-${pollId}`);
     const btn = document.getElementById(`btn-vote-${pollId}`);
-    if (btn) {
-        btn.innerHTML = 'Mengirim...';
-        btn.disabled = true;
-    }
+    if (!card || !btn) return;
 
-    // Simulate API call delay
-    setTimeout(() => {
-        alert('Terima kasih atas partisipasi Anda!');
-        
-        // Reset state (optional) or show results
-        if (btn) {
+    // Get selected option
+    const selected = card.querySelector('input[type="radio"]:checked');
+    if (!selected) return;
+
+    const optionId = selected.value;
+
+    btn.innerHTML = 'Mengirim...';
+    btn.disabled = true;
+
+    try {
+        const res = await API.polling.vote(pollId, optionId);
+        if (res.success) {
             btn.innerHTML = 'TERKIRIM';
-            btn.style.background = '#222';
+            btn.style.background = '#16a34a';
+            btn.style.color = '#fff';
+        } else {
+            throw new Error(res.message || 'Gagal mengirim suara');
         }
-    }, 1000);
+    } catch (error) {
+        console.error('Vote error:', error);
+        btn.innerHTML = 'Gagal, Coba Lagi';
+        btn.style.background = '#dc2626';
+        btn.disabled = false;
+    }
 };
 
 // ==========================================
@@ -3141,6 +3188,7 @@ function createBeritaUtamaItem(news, showDescription = false) {
                 <img src="${getImageUrl(news.image || news.cover)}" 
                      alt="${escapeHtml(news.title)}" 
                      class="berita-utama-image"
+                     loading="lazy"
                      onerror="this.src='https://placehold.co/400x225/eee/999?text=SinPo'">
             </div>
 
