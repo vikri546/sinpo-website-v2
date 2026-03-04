@@ -622,6 +622,19 @@ function formatDate(dateString) {
     });
 }
 
+// Format date to DD/MM/YYYY for simplified display
+function formatDateSimple(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+}
+
 // Format relative time (real-time)
 // - < 1 menit: "Baru saja"
 // - < 60 menit: "X menit yang lalu"
@@ -708,7 +721,7 @@ function formatAuthorName(author) {
 
 // Get author name with priority (Menyesuaikan dengan narasumber/pembuat dari API)
 function getAuthorName(item) {
-    return item?.editor || item?.penulis || item?.oleh || item?.journalist || item?.wartawan || formatAuthorName(item?.author) || 'Redaksi';
+    return item?.journalist || item?.wartawan || item?.editor || item?.penulis || item?.oleh || formatAuthorName(item?.author) || 'Redaksi';
 }
 
 // Format category name
@@ -763,9 +776,7 @@ function toggleTheme() {
 }
 
 function updateThemeIcon() {
-    // KOSONGKAN SAJA. 
-    // Kita sekarang menggunakan CSS untuk mengubah icon (SVG), 
-    // jadi tidak perlu mengubah textContent lewat JS lagi.
+    // USE ICON (SVG)
 }
 
 // Update Date Display
@@ -977,7 +988,9 @@ async function renderArticle(id) {
                 <div class="article-main-column">
                     <article class="article-detail">
                         <h1 class="article-title">${escapeHtml(article.title)}</h1>
-                        <div class="publisher-info-bar">
+                        
+                        <!-- Desktop-only publisher info bar (Restored) -->
+                        <div class="publisher-info-bar desktop-only">
                             <div class="publisher-group plain-group">
                                 <div class="publisher-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
@@ -1004,7 +1017,7 @@ async function renderArticle(id) {
                             <div class="publisher-group">
                                 <div class="publisher-details">
                                     <span class="publisher-label">TERBIT</span>
-                                    <span class="publisher-value">${formatRelativeTime(article.published_at || article.created_at)}</span>
+                                    <span class="publisher-value">${formatDate(article.published_at || article.created_at)}</span>
                                 </div>
                             </div>
 
@@ -1017,12 +1030,53 @@ async function renderArticle(id) {
                                 </div>
                             </div>
                         </div>
-                        <img src="${getImageUrl(article.image || article.cover)}" 
-                             alt="${escapeHtml(article.title)}" 
-                             class="article-image"
-                             loading="lazy"
-                             onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
-                        ${article.cover_credit ? `<p class="image-credit">${escapeHtml(article.cover_credit)}</p>` : ''}
+
+                        <!-- Mobile-only header redesign -->
+                        <div class="mobile-only">
+                            <!-- Line divider after title (Mobile Focus) -->
+                            <div class="header-divider-thin"></div>
+                        </div>
+
+                        <div class="article-header-image-wrapper">
+                             <img src="${getImageUrl(article.image || article.cover)}" 
+                                  alt="${escapeHtml(article.title)}" 
+                                  class="article-image-detail"
+                                  loading="lazy"
+                                  onerror="this.src='https://placehold.co/800x600/eee/999?text=SinPo+Media'">
+                             
+                             <div class="image-info-row mobile-only">
+                                 <div class="image-credit-new">
+                                     ${article.cover_credit ? `Foto: ${escapeHtml(article.cover_credit)}` : 'Foto: Sin Po'}
+                                 </div>
+                                 <div class="category-badge-detail">
+                                     ${escapeHtml(formatCategoryName(article.category))}
+                                 </div>
+                             </div>
+
+                             <!-- Desktop-only credit fallback -->
+                             <div class="desktop-only">
+                                 ${article.cover_credit ? `<p class="image-credit">${escapeHtml(article.cover_credit)}</p>` : ''}
+                             </div>
+                        </div>
+
+                        <div class="mobile-only">
+                            <!-- Horizontal line divider after image info -->
+                            <div class="header-divider-thin"></div>
+
+                            <div class="author-meta-new">
+                                <span class="author-names">
+                                    ${escapeHtml(article.journalist || 'TIM REDAKSI')} & ${escapeHtml(article.editor || 'Tim Redaksi')}
+                                </span>
+                                <span class="meta-separator">|</span>
+                                <span class="publish-date-simple">
+                                    ${formatDate(article.published_at || article.created_at)}
+                                </span>
+                            </div>
+
+                            <!-- Horizontal line divider after author info -->
+                            <div class="header-divider-thin"></div>
+                        </div>
+
                         <div class="article-content">
                             ${fixContentImages(article.content || '<p>Konten tidak tersedia.</p>')}
                         </div>
@@ -1116,9 +1170,6 @@ async function renderArticle(id) {
 
 // ==========================================
 // CATEGORY PAGE
-// ==========================================
-// ==========================================
-// CATEGORY PAGE WITH INFINITE SCROLL
 // ==========================================
 async function renderCategory(categoryId) {
     // 1. Ensure channels and categories are loaded for Slug -> ID mapping
