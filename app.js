@@ -635,6 +635,28 @@ function formatDateSimple(dateString) {
     return `${day}/${month}/${year}`;
 }
 
+// Format date to: Senin, 16 Maret 2026 - 16:45
+function formatDateFull(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    
+    const dayName = days[date.getDay()];
+    const day = date.getDate();
+    const monthName = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${dayName}, ${day} ${monthName} ${year} - ${hours}:${minutes}`;
+}
+
 // Format relative time (real-time)
 // - < 1 menit: "Baru saja"
 // - < 60 menit: "X menit yang lalu"
@@ -1067,9 +1089,9 @@ async function renderArticle(id) {
                                 <span class="author-names">
                                     ${escapeHtml(article.journalist || 'TIM REDAKSI')} & ${escapeHtml(article.editor || 'Tim Redaksi')}
                                 </span>
-                                <span class="meta-separator">|</span>
+                                <div class="meta-line-short"></div>
                                 <span class="publish-date-simple">
-                                    ${formatDate(article.published_at || article.created_at)}
+                                    ${formatDateFull(article.published_at || article.created_at)}
                                 </span>
                             </div>
 

@@ -6343,17 +6343,14 @@ body.dark-mode .image-info-row {
     padding: 0.2rem 0.5rem;
     font-weight: 700;
     text-transform: uppercase;
-    /* Extend to left space slightly as requested */
-    margin-right: -1rem; 
-    padding-left: 3rem;
-    position: relative;
+    display: inline-block;
+    text-align: right; /* teks di dalam badge rata kanan */
 }
 
 /* On mobile, we might need to handle the negative margin differently if container has padding */
 @media (max-width: 768px) {
     .category-badge-detail {
-        margin-right: -0.1rem; /* Adjust based on wrapper padding */
-        max-width: calc(100vw - 2rem); /* Ensure it doesn't overflow */
+        max-width: calc(100vw - 3rem); /* Ensure it doesn't overflow */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -6362,15 +6359,14 @@ body.dark-mode .image-info-row {
 
 .author-meta-new {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--color-black);
-    flex-wrap: wrap;
     margin: 0.5rem 0;
 }
 
@@ -6422,4 +6418,15 @@ body.dark-mode .author-names {
     .desktop-only {
         display: none !important;
     }
+}
+
+.meta-line-short {
+    width: 30px;
+    height: 2px;
+    background-color: var(--color-gray-500);
+    margin: 0.2rem 0;
+}
+
+body.dark-mode .meta-line-short {
+    background-color: var(--color-gray-700);
 }
