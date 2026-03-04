@@ -5511,7 +5511,7 @@ body.dark-mode .highlight-ad-placeholder {
     flex-direction: column;
     /* Optional: Sticky Sidebar */
     position: sticky;
-    top: 100px;
+    top: 160px;
     height: fit-content;
 }
 
@@ -5883,22 +5883,28 @@ body.dark-mode .sp-header {
 
 .sp-logo {
     text-decoration: none;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Times New Roman', serif;
+    font-weight: 900;
+    font-size: 1.8rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: baseline;
 }
 
 .sp-logo .sinpo-text {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #D91B1B;
+}
+
+.sp-logo .id-text {
+    font-size: 1.8rem;
     font-weight: 900;
     color: var(--color-black);
 }
 
-.sp-logo .id-text {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--color-primary);
-}
-
-body.dark-mode .sp-logo .sinpo-text {
+body.dark-mode .sp-logo .id-text {
     color: var(--color-white);
 }
 
@@ -6094,169 +6100,8 @@ body.dark-mode .sp-popular-title {
     color: var(--color-white);
 }
 
-/* Auth Section */
-.sp-auth-section {
-    background: var(--color-gray-50);
-    border-radius: 10px;
-    padding: 1.25rem !important;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
-}
 
-body.dark-mode .sp-auth-section {
-    background: var(--color-gray-900);
-}
 
-.sp-auth-greeting {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-black);
-    margin: 0 0 1rem;
-}
-
-body.dark-mode .sp-auth-greeting {
-    color: var(--color-white);
-}
-
-.sp-auth-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 1rem;
-    background: var(--color-gray-200);
-    border-radius: 6px;
-    padding: 3px;
-}
-
-body.dark-mode .sp-auth-tabs {
-    background: var(--color-gray-800);
-}
-
-.sp-auth-tab {
-    flex: 1;
-    padding: 0.5rem;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--color-gray-500);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-radius: 4px;
-    transition: all 0.25s ease;
-}
-
-.sp-auth-tab.active {
-    background: var(--color-white);
-    color: var(--color-black);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-body.dark-mode .sp-auth-tab.active {
-    background: var(--color-gray-700);
-    color: var(--color-white);
-}
-
-/* Auth Slider */
-.sp-auth-slider {
-    overflow: hidden;
-    border-radius: 6px;
-}
-
-.sp-auth-slides {
-    display: flex;
-    width: 200%;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sp-auth-slide {
-    width: 50%;
-    flex-shrink: 0;
-}
-
-/* Form Styles */
-.sp-form-group {
-    margin-bottom: 0.75rem;
-}
-
-.sp-form-group label {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--color-gray-600);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.3rem;
-}
-
-body.dark-mode .sp-form-group label {
-    color: var(--color-gray-400);
-}
-
-.sp-form-group input {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid var(--color-gray-200);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-family: inherit;
-    background: var(--color-white);
-    color: var(--color-black);
-    transition: border-color 0.2s;
-    outline: none;
-    box-sizing: border-box;
-}
-
-.sp-form-group input:focus {
-    border-color: var(--color-primary);
-}
-
-body.dark-mode .sp-form-group input {
-    background: var(--color-gray-800);
-    color: var(--color-white);
-    border-color: var(--color-gray-700);
-}
-
-body.dark-mode .sp-form-group input:focus {
-    border-color: var(--color-primary);
-}
-
-.sp-auth-submit {
-    width: 100%;
-    padding: 0.7rem;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    transition: background 0.3s;
-    margin-top: 0.25rem;
-}
-
-.sp-auth-submit:hover {
-    background: #b91515;
-}
-
-.sp-forgot-btn {
-    width: 100%;
-    background: none;
-    border: none;
-    color: var(--color-gray-500);
-    font-size: 0.75rem;
-    cursor: pointer;
-    margin-top: 0.75rem;
-    padding: 0.25rem;
-    text-decoration: underline;
-    transition: color 0.2s;
-}
-
-.sp-forgot-btn:hover {
-    color: var(--color-primary);
-}
 
 /* Loading & Empty States */
 .sp-loading {

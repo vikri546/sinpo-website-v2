@@ -25,9 +25,9 @@ const AppState = {
     newsCache: {},
     darkMode: false,
     isLoading: false,
-    latestOffset: 0, // Tambahan untuk load more
+    latestPage: 1, // Changed from latestOffset
     latestLimit: 5,   // Jumlah load per klik
-    beritaUtamaOffset: 15, // Offset awal untuk Berita Utama
+    beritaUtamaPage: 1, // Changed from beritaUtamaOffset
     beritaUtamaLimit: 5,    // Limit untuk load more Berita Utama
     categories: null,       // Cache kategori
     categoryOffset: 0,      // Offset untuk pagination kategori
@@ -200,6 +200,33 @@ function mapGallery(raw) {
     };
 }
 
+// Helper to construct exact date-time from API response
+function parseApiDate(dateStr, timeStr) {
+    if (!dateStr) return '';
+    try {
+        let finalDateStr = dateStr;
+        // If we have date like "2026-03-04T00:00:00.000000Z" and a 'waktu' like "19:09:00"
+        if (dateStr.includes('T')) {
+            const datePart = dateStr.split('T')[0];
+            if (timeStr) {
+                // Combine them to form "YYYY-MM-DDTHH:MM:SS"
+                // Assuming the time from API is in local time (WIB typically), we construct ISO string without 'Z' to be parsed in local timezone
+                finalDateStr = `${datePart}T${timeStr}`;
+            } else {
+                finalDateStr = dateStr;
+            }
+        } else if (dateStr.includes(' ') && timeStr) {
+            const datePart = dateStr.split(' ')[0];
+            finalDateStr = `${datePart}T${timeStr}`;
+        } else if (timeStr) {
+            finalDateStr = `${dateStr}T${timeStr}`;
+        }
+        return finalDateStr;
+    } catch {
+        return dateStr;
+    }
+}
+
 function mapNewsItem(raw) {
     const channelName = raw.channel?.name || raw.datachannel?.nama || '';
     const categoryName = raw.category?.name || raw.datakategori?.nama || channelName || 'Umum';
@@ -282,9 +309,9 @@ function mapNewsItem(raw) {
         cover: imageSrc || '',
         image: imageSrc || null,
         cover_credit: raw.caption || raw.cover_credit || '',
-        created_at: raw.created_at || raw.tanggal_tayang || '',
-        updated_at: raw.updated_at || '',
-        published_at: raw.published_at || raw.tanggal_tayang || '',
+        created_at: parseApiDate(raw.created_at || raw.tanggal_tayang, raw.waktu) || '',
+        updated_at: parseApiDate(raw.updated_at, raw.waktu_update || raw.waktu) || '',
+        published_at: parseApiDate(raw.published_at || raw.tanggal_tayang, raw.waktu) || '',
         views: raw.views || raw.counter || 0,
         tags: raw.tags || (raw.tag ? raw.tag.split(',').map(t => t.trim()) : []),
         category: {
@@ -299,6 +326,7 @@ function mapNewsItem(raw) {
             slug: raw.channel?.slug || '',
         },
         editor: raw.penulis || '',
+        oleh: raw.oleh || '',
         journalist: raw.wartawan || '',
         gallery: Array.isArray(raw.datagallery) ? raw.datagallery.map(mapGallery) : [],
     };
@@ -594,13 +622,25 @@ function formatDate(dateString) {
     });
 }
 
-// Format relative time
+// Format relative time (real-time)
+// - < 1 menit: "Baru saja"
+// - < 60 menit: "X menit yang lalu"
+// - < 24 jam: "X jam yang lalu"
+// - 1 hari: "Kemarin"
+// - 2-6 hari: "X hari yang lalu"
+// - >= 7 hari: tanggal lengkap (DD MMMM YYYY)
 function formatRelativeTime(dateString) {
     if (!dateString) return 'Baru saja';
     
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Tanggal tidak valid';
+
     const now = new Date();
     const diffMs = now - date;
+    
+    // Handle future dates
+    if (diffMs < 0) return 'Baru saja';
+
     const diffSecs = Math.floor(diffMs / 1000);
     const diffMins = Math.floor(diffSecs / 60);
     const diffHours = Math.floor(diffSecs / 3600);
@@ -609,6 +649,7 @@ function formatRelativeTime(dateString) {
     if (diffSecs < 60) return 'Baru saja';
     if (diffMins < 60) return `${diffMins} menit yang lalu`;
     if (diffHours < 24) return `${diffHours} jam yang lalu`;
+    if (diffDays === 1) return 'Kemarin';
     if (diffDays < 7) return `${diffDays} hari yang lalu`;
     
     return formatDate(dateString);
@@ -665,9 +706,9 @@ function formatAuthorName(author) {
     return author.name || author.nama || 'Redaksi';
 }
 
-// Get author name with priority
+// Get author name with priority (Menyesuaikan dengan narasumber/pembuat dari API)
 function getAuthorName(item) {
-    return item?.journalist || item?.wartawan || formatAuthorName(item?.author) || 'Redaksi';
+    return item?.editor || item?.penulis || item?.oleh || item?.journalist || item?.wartawan || formatAuthorName(item?.author) || 'Redaksi';
 }
 
 // Format category name
@@ -879,13 +920,14 @@ function createHeroSection(headline) {
     `;
 }
 
-function createSidebarCard(news) {
+function createSidebarCard(news, showCategory = true) {
     const categoryName = formatCategoryName(news.category);
     const catClass = categoryName.toLowerCase() === 'bongkar' ? 'cat-large-red' : 'cat-small';
+    const categoryHtml = showCategory ? `<div class="${catClass}">${escapeHtml(categoryName)}</div>` : '';
 
     return `
         <div class="sidebar-news-card" onclick="navigate('article', event, {id: ${news.id}})">
-            <div class="${catClass}">${escapeHtml(categoryName)}</div>
+            ${categoryHtml}
             <img src="${getImageUrl(news.image || news.cover || news.thumbnail || news.image_url)}" 
                  alt="${escapeHtml(news.title)}"
                  class="sidebar-news-image"
@@ -900,25 +942,27 @@ function createSidebarCard(news) {
 // ARTICLE DETAIL PAGE
 // ==========================================
 async function renderArticle(id) {
-    const [detailRes, relatedRes, commentsRes, sidebarRes] = await Promise.all([
+    const [detailRes, relatedRes, commentsRes, sidebarRes, bongkarRes] = await Promise.all([
         API.berita.detail(id),
         API.berita.terkait(id, { limit: 6 }),
         API.komentar.list({ id_berita: id, limit: 10 }),
-        API.berita.populer({ limit: 7 })
+        API.berita.populer({ limit: 7 }),
+        API.berita.list({ channel: 21, limit: 10 }).catch(() => ({ data: [] }))
     ]);
 
     const article = detailRes.data;
     const relatedNews = safeArray(relatedRes.data);
     const comments = safeArray(commentsRes.data);
-    const sidebarNews = safeArray(sidebarRes.data);
+    const bongkarNews = safeArray(bongkarRes.data);
     
     // Split related news for 2 columns
     const relatedLeft = relatedNews.slice(0, 3);
     const relatedRight = relatedNews.slice(3, 6);
 
     // Split: 2 for "TDK KALAH PENTING", rest for "BERITA TERPOPULER" (Limit 5)
-    const tdkNews = sidebarNews.slice(0, 2);
-    const populerNews = sidebarNews.slice(2, 7);
+    // Using Bongkar News as requested
+    const tdkNews = bongkarNews.slice(0, 2);
+    const populerNews = bongkarNews.slice(2, 7);
 
     if (!article) {
         showError('Artikel tidak ditemukan');
@@ -960,7 +1004,7 @@ async function renderArticle(id) {
                             <div class="publisher-group">
                                 <div class="publisher-details">
                                     <span class="publisher-label">TERBIT</span>
-                                    <span class="publisher-value">${formatDate(article.published_at || article.created_at)}</span>
+                                    <span class="publisher-value">${formatRelativeTime(article.published_at || article.created_at)}</span>
                                 </div>
                             </div>
 
@@ -1027,7 +1071,7 @@ async function renderArticle(id) {
                         <div class="popular-list-new">
                             ${tdkNews.map((news, index) => `
                                 ${index > 0 ? '<div class="sidebar-divider"></div>' : ''}
-                                ${createSidebarCard(news)}
+                                ${createSidebarCard(news, false)}
                             `).join('')}
                         </div>
                     </div>
@@ -1077,10 +1121,20 @@ async function renderArticle(id) {
 // CATEGORY PAGE WITH INFINITE SCROLL
 // ==========================================
 async function renderCategory(categoryId) {
-    // 1. Ensure categories are loaded for Slug -> ID mapping
+    // 1. Ensure channels and categories are loaded for Slug -> ID mapping
+    if (!AppState.channels) {
+        try {
+            // Fetch more channels to ensure we get all of them (e.g. Budaya is ID 22)
+            const chanRes = await API.channel.list({ limit: 100 });
+            if (chanRes.success) {
+                AppState.channels = safeArray(chanRes.data);
+            }
+        } catch(e) { console.error("Failed to load channels", e); }
+    }
     if (!AppState.categories) {
         try {
-            const catRes = await API.kategori.list();
+            // Fetch more categories to ensure all are loaded
+            const catRes = await API.kategori.list({ limit: 100 });
             if (catRes.success) {
                 AppState.categories = safeArray(catRes.data);
             }
@@ -1089,34 +1143,87 @@ async function renderCategory(categoryId) {
         }
     }
 
-    // 2. Resolve Slug to ID
+    // 2. Resolve Slug to ID (Prioritize Channel first, then Category)
     let finalId = categoryId;
     let categoryName = String(categoryId).toUpperCase();
+    let isChannel = false;
+    let isIndex = (String(categoryId).toLowerCase() === 'indeks');
 
-    if (AppState.categories && Array.isArray(AppState.categories)) {
-        const search = String(categoryId).toLowerCase();
-        const found = AppState.categories.find(c => 
-            (c.slug && c.slug.toLowerCase() === search) || 
-            (c.nama && c.nama.toLowerCase() === search) ||
-            (c.name && c.name.toLowerCase() === search)
-        );
+    const search = String(categoryId).toLowerCase();
 
-        if (found) {
-            finalId = found.id;
-            categoryName = found.nama || found.name || categoryName;
-            console.log(`Mapped category slug '${categoryId}' to ID: ${finalId} (${categoryName})`);
+    if (isIndex) {
+        finalId = null;
+        categoryName = "INDEKS BERITA";
+    } else {
+        // Check Channels First
+        if (AppState.channels && Array.isArray(AppState.channels)) {
+            const found = AppState.channels.find(c => 
+                (c.slug && c.slug.toLowerCase() === search) || 
+                (c.nama && c.nama.toLowerCase() === search) ||
+                (c.name && c.name.toLowerCase() === search)
+            );
+
+            if (found) {
+                finalId = found.id;
+                categoryName = found.nama || found.name || categoryName;
+                isChannel = true;
+                console.log(`Mapped slug '${categoryId}' to Channel ID: ${finalId} (${categoryName})`);
+            }
+        }
+
+        // Check Categories if not found in Channels
+        if (!isChannel && AppState.categories && Array.isArray(AppState.categories)) {
+            const found = AppState.categories.find(c => 
+                (c.slug && c.slug.toLowerCase() === search) || 
+                (c.nama && c.nama.toLowerCase() === search) ||
+                (c.name && c.name.toLowerCase() === search)
+            );
+
+            if (found) {
+                finalId = found.id;
+                categoryName = found.nama || found.name || categoryName;
+                console.log(`Mapped slug '${categoryId}' to Category ID: ${finalId} (${categoryName})`);
+            }
         }
     }
 
     // 3. Reset Pagination State
     // We will manually load the first 5 items (1 Hero + 4 List)
-    AppState.categoryOffset = 0; 
+    AppState.categoryPage = 1; 
     AppState.hasMoreCategory = true;
     AppState.isFetchingCategory = false;
     AppState.currentCategoryId = finalId;
+    AppState.isCurrentQueryChannel = isChannel;
+    AppState.isCurrentQueryIndex = isIndex;
 
     const app = document.getElementById('app');
     
+    // Show user feedback immediately
+    showLoading();
+
+    // 4. Manual First Fetch (Fetch 20 items: 5 Hero + 5 Highlight + 5 List + 5 Sidebar)
+    let news = [];
+    try {
+        AppState.isFetchingCategory = true;
+        // Depending on whether it's a channel or category, we need different API param
+        const queryParams = { limit: 20, page: 1 };
+        if (AppState.isCurrentQueryIndex) {
+            // For Index, we don't filter by channel or category
+        } else if (AppState.isCurrentQueryChannel) {
+            queryParams.channel = AppState.currentCategoryId;
+        } else {
+            queryParams.kategori = AppState.currentCategoryId;
+        }
+
+        const data = await API.berita.list(queryParams);
+        news = safeArray(data.data);
+    } catch (e) {
+        console.error("Error fetching category", e);
+    } finally {
+        AppState.isFetchingCategory = false;
+        hideLoading();
+    }
+
     // Render Initial Frame (Skeleton for Overlay + Highlight)
     app.innerHTML = `
         <div class="container">
@@ -1207,18 +1314,7 @@ async function renderCategory(categoryId) {
         </div>
     `;
 
-    // 4. Manual First Fetch (Fetch 20 items: 5 Hero + 5 Highlight + 5 List + 5 Sidebar)
     try {
-        AppState.isFetchingCategory = true;
-        const data = await API.berita.list({ 
-            kategori: AppState.currentCategoryId, 
-            limit: 20, 
-            offset: 0
-        });
-        
-        const news = safeArray(data.data);
-        AppState.isFetchingCategory = false;
-
         const heroBgEl = document.getElementById('category-hero-bg');
         const heroMainEl = document.getElementById('cat-hero-main');
         const listEl = document.getElementById('cat-hero-list');
@@ -1254,7 +1350,7 @@ async function renderCategory(categoryId) {
                 <p class="cat-overlay-summary">${escapeHtml(heroItem.summary)}</p>
                 <div class="cat-overlay-meta">
                     <span>${escapeHtml(getAuthorName(heroItem)).toUpperCase()}</span> • 
-                    <span>${formatDate(heroItem.published_at || heroItem.created_at)}</span>
+                    <span>${formatRelativeTime(heroItem.published_at || heroItem.created_at)}</span>
                 </div>
             `;
 
@@ -1272,7 +1368,7 @@ async function renderCategory(categoryId) {
                                 <div class="cat-list-meta-mobile">
                                     <span class="cat-list-time">${formatRelativeTime(item.published_at || item.created_at)}</span>
                                 </div>
-                                <span class="cat-overlay-list-date">${formatDate(item.published_at || item.created_at)}</span>
+                                <span class="cat-overlay-list-date">${formatRelativeTime(item.published_at || item.created_at)}</span>
                             </div>
                         </div>
                     `;
@@ -1299,7 +1395,7 @@ async function renderCategory(categoryId) {
                         <div class="highlight-meta" style="margin-bottom:0.5rem; margin-top:0;">
                              <img src="${featItem.author?.avatar || 'https://ui-avatars.com/api/?name=' + getAuthorName(featItem)}" class="highlight-avatar" alt="Avatar">
                              <span>${escapeHtml(getAuthorName(featItem)).toUpperCase()}</span>
-                             <span>${formatDate(featItem.published_at)}</span>
+                             <span>${formatRelativeTime(featItem.published_at)}</span>
                         </div>
                         <h3 onclick="navigate('article', event, {id: ${featItem.id}})">${escapeHtml(featItem.title)}</h3>
                     </div>
@@ -1322,7 +1418,7 @@ async function renderCategory(categoryId) {
                                         <span>${escapeHtml(getAuthorName(item)).toUpperCase()}</span>
                                     </div>
                                     <h3>${escapeHtml(item.title)}</h3>
-                                    <span class="highlight-meta" style="margin-top: auto;">${formatDate(item.published_at)}</span>
+                                    <span class="highlight-meta" style="margin-top: auto;">${formatRelativeTime(item.published_at)}</span>
                                 </div>
                             </div>
                         `;
@@ -1363,7 +1459,7 @@ async function renderCategory(categoryId) {
                                 <span>${escapeHtml(getAuthorName(item))}</span>
                             </div>
                             <h4 class="cat-sidebar-item-title">${escapeHtml(item.title)}</h4>
-                            <span class="cat-sidebar-date">${formatDate(item.published_at)} • ${escapeHtml(item.channel?.name || 'News')}</span>
+                            <span class="cat-sidebar-date">${formatRelativeTime(item.published_at)} • ${escapeHtml(item.channel?.name || 'News')}</span>
                         </div>
                     `;
                 });
@@ -1373,7 +1469,7 @@ async function renderCategory(categoryId) {
 
 
             // Update Offset & Tracker
-            AppState.categoryOffset = 20; // Default fetch was 20
+            AppState.categoryPage = 2; // Initial load was page 1
             AppState.seenIds.clear();
             registerSeenNews(news);
 
@@ -1539,7 +1635,7 @@ function createTimelineItem(news) {
                     <!-- Removed Author Image & Inline Styles -->
                     <span class="timeline-author">${escapeHtml(getAuthorName(news))}</span>
                     <span class="timeline-dot">•</span>
-                    <span class="timeline-date">${formatDate(news.published_at || news.created_at)}</span>
+                    <span class="timeline-date">${formatRelativeTime(news.published_at || news.created_at)}</span>
                 </div>
             </div>
         </div>
@@ -1557,16 +1653,16 @@ async function loadMoreNews() {
     btn.disabled = true;
 
     try {
-        const fetchLimit = 20; // Fetch larger batch to find unique items
-        const currentOffset = AppState.latestOffset;
+        const fetchLimit = 20; 
+        const currentPage = AppState.latestPage;
         
         const res = await API.berita.list({ 
             limit: fetchLimit, 
-            offset: currentOffset 
+            page: currentPage 
         });
         
-        // Advance offset by the amount fetched
-        AppState.latestOffset += fetchLimit;
+        // Advance page
+        AppState.latestPage += 1;
 
         const rawItems = safeArray(res.data);
         const newItems = filterSeenNews(rawItems).slice(0, 5); // Take only 5 unique
@@ -1740,16 +1836,18 @@ async function renderHome() {
         
         // 2. FETCH DATA (Unified Force-Load)
         // Fetch a large pool (60 items) to guarantee enough unique content for all slots
-        const [headlineRes, newsPoolRes, popularRes] = await Promise.all([
+        const [headlineRes, newsPoolRes, popularRes, bongkarRes] = await Promise.all([
             API.berita.headline({ limit: 1 }).catch(() => ({ data: [] })),
             API.berita.list({ limit: 60 }).catch(() => ({ data: [] })),
-            API.berita.populer({ limit: 15 }).catch(() => ({ data: [] }))
+            API.berita.populer({ limit: 15 }).catch(() => ({ data: [] })),
+            API.berita.list({ channel: 21, limit: 10 }).catch(() => ({ data: [] }))
         ]);
 
         // 3. Sequential Distribution of Unique Items
         let pool = safeArray(newsPoolRes?.data);
         const headline = safeArray(headlineRes?.data)[0];
         const allPopular = safeArray(popularRes?.data);
+        const bongkarNews = safeArray(bongkarRes?.data);
         
         // Count how many items from the pool we actually use
         // to set the next offset correctly
@@ -1776,14 +1874,24 @@ async function renderHome() {
         const timelineNews = getNextUnique(5);
         const beritaUtamaNews = getNextUnique(5);
 
-        // Set Offsets for Load More
-        // We start exactly from the point in the API where we stopped
-        AppState.latestOffset = usedFromPoolCount;
-        AppState.beritaUtamaOffset = usedFromPoolCount;
+        // Set Pages for Load More
+        // We fetched limit 60 initially, which is equivalent to 3 pages of 20 items.
+        // So the next fetch of limit:20 should start at page 4.
+        let itemsUsed = usedFromPoolCount; // Max 14 used.
+        // If we only used 14 items, they are all within page 1. But because we fetched 60, we might want to just start fresh at page 4 to avoid overlapping, or page 2 if we fetched limit: 20 initially.
+        // Let's assume the API doesn't care about the previous limit and next loadMoreNews uses limit=20.
+        // To be safe, wait, if we use page 4, we skip items 15-60.
+        // Sinpo API might ignore offset. If we fetched 60, we have them in cache? No cache.
+        // Actually, if we just advance `latestPage` to 4 we miss out on remaining items from the first 60.
+        // It's better to fetch `page=4` at limit=20. 
+        AppState.latestPage = 4;
+        AppState.beritaUtamaPage = 4;
 
         // Use the same popular list for both sidebar and mobile to save an API call
-        const sidebarNews = allPopular.slice(0, 2);
-        const mobilePopularNews = allPopular;
+        // Use "BONGKAR" for Sidebar and Trending as requested
+        const sidebarNews = bongkarNews.slice(0, 2);
+        const mobilePopularNews = bongkarNews.slice(0, 5); // Use Bongkar for mobile popular
+        const trendingNews = bongkarNews; // For "TREN HARI INI" section
 
         const app = document.getElementById('app');
         if (!app) return;
@@ -1818,8 +1926,8 @@ async function renderHome() {
             html += `<div class="mobile-underline"></div>`;
             html += `<div class="mobile-popular-list">`;
             // Limit to exact 5 items for mobile home popular section
-            mobilePopularNews.slice(0, 5).forEach((news, idx) => {
-                html += createMobilePopularItem(news, idx + 1);
+            mobilePopularNews.forEach((news, idx) => {
+                html += createMobilePopularItem(news, idx + 1, false);
             });
             html += `</div></div>`; 
         }
@@ -1867,14 +1975,14 @@ async function renderHome() {
 
         // --- TRENDING SECTION (DESKTOP) ---
         // Using reusing mobilePopularNews data as requested
-        if (mobilePopularNews.length > 0) {
-            html += createTrendingSection(mobilePopularNews);
+        if (trendingNews.length > 0) {
+            html += createTrendingSection(trendingNews);
 
             // Inject SIN PO TV Section Here
             html += createSinPoTVSection();
             
             // Inject Polling Section
-            html += createPollingSection();
+            // html += createPollingSection();
 
             // Inject Berita Utama Section
             html += createBeritaUtamaSection(beritaUtamaNews);
@@ -1887,7 +1995,7 @@ async function renderHome() {
         // --- INITIALIZE CAROUSELS & INTERACTIVE ELEMENTS ---
         // These MUST be called after app.innerHTML is updated
         initTrendingDots();
-        initPollingDots();
+        // initPollingDots();
         initSinPoTV();
 
     } catch (error) {
@@ -1922,7 +2030,7 @@ function createFeaturedMain(news) {
                     <div class="mobile-meta-row">
                         <span class="mobile-author">${escapeHtml(getAuthorName(news))}</span>
                         <span class="mobile-category">${escapeHtml(formatCategoryName(news.category))}</span>
-                        <span class="mobile-date">${formatDate(news.published_at || news.created_at)}</span>
+                        <span class="mobile-date">${formatRelativeTime(news.published_at || news.created_at)}</span>
                     </div>
 
                     <h2 class="featured-main-title">
@@ -1932,7 +2040,7 @@ function createFeaturedMain(news) {
                     <!-- Desktop Meta (Hidden on Mobile) -->
                     <div class="featured-main-meta">
                         <span class="meta-date">
-                            ${formatDate(news.published_at || news.created_at)}
+                            ${formatRelativeTime(news.published_at || news.created_at)}
                             <span class="meta-dot">•</span>
                         </span>
                         <span class="meta-credit">
@@ -1962,7 +2070,7 @@ function createFeaturedSecondary(news) {
 
                 <div class="featured-secondary-meta">
                     <span class="meta-date">
-                        ${formatDate(news.published_at || news.created_at)}
+                        ${formatRelativeTime(news.published_at || news.created_at)}
                         <span class="meta-dot">•</span>
                     </span>
                     <span class="meta-credit">
@@ -1986,7 +2094,7 @@ function createRelatedFeatured(news) {
                     <div class="related-meta">
                         <img src="${news.author?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(getAuthorName(news)) + '&background=dedede&color=999'}" class="related-author-avatar">
                         <span class="related-author-name">${escapeHtml(getAuthorName(news))}</span>
-                        <span class="related-date">${formatDate(news.published_at || news.created_at)}</span>
+                        <span class="related-date">${formatRelativeTime(news.published_at || news.created_at)}</span>
                     </div>
                     <h3 class="related-featured-title">${escapeHtml(news.title)}</h3>
                 </div>
@@ -2014,7 +2122,7 @@ function createFeaturedListItem(news) {
             <div class="featured-list-content">
                 <h4 class="featured-list-title">${escapeHtml(news.title)}</h4>
                 <div class="featured-list-meta">
-                    ${formatDate(news.published_at || news.created_at)}
+                    ${formatRelativeTime(news.published_at || news.created_at)}
                 </div>
             </div>
         </div>
@@ -2101,8 +2209,9 @@ async function renderSearch(query) {
 
     // Fetch recommendations and results in parallel FIRST
     // This allows the global showLoading() from renderPage to remain active
-    const [resultsRes, recsRes] = await Promise.all([
-        API.berita.list({ q: query, limit: 10, offset: 0 }).catch(() => ({ data: [] })),
+    // Fetch more results to allow picking random recommendations from relevant ones
+    const [resultsRes, popularRes] = await Promise.all([
+        API.berita.list({ q: query, limit: 20, page: 1 }).catch(() => ({ data: [] })),
         API.berita.populer({ limit: 10 }).catch(() => ({ data: [] }))
     ]);
 
@@ -2110,7 +2219,7 @@ async function renderSearch(query) {
     
     // Initialize Search State
     AppState.searchQuery = query;
-    AppState.searchOffset = 0;
+    AppState.searchPage = 1;
     AppState.hasMoreSearch = true;
 
     // Render Layout Structure
@@ -2170,7 +2279,7 @@ async function renderSearch(query) {
             resultsList.innerHTML += createBeritaUtamaItem(item, true); // true = show description
         });
 
-        AppState.searchOffset = 10;
+        AppState.searchPage = 2;
         if (results.length >= 10) {
             loadMoreContainer.classList.remove('hidden');
         } else {
@@ -2187,9 +2296,21 @@ async function renderSearch(query) {
         `;
     }
 
-    // Handle Recommendations (berdasarkan berita terbanyak dilihat)
+    // Handle Recommendations (berdasarkan berita random dari hasil pencarian atau populer sebagai fallback)
     const recsList = document.getElementById('recommendation-list');
-    const recsItems = safeArray(recsRes.data).slice(0, 5);
+    
+    // Logic: Pick up to 5 random items from results 11-20, or from 1-10 if not enough, or popular as fallback
+    let allResults = safeArray(resultsRes.data);
+    let recsItems = [];
+
+    if (allResults.length > 5) {
+        // Shuffle the results (excluding those already shown in the first 10 if there are enough total results)
+        const pool = allResults.length > 10 ? allResults.slice(10) : allResults;
+        recsItems = pool.sort(() => 0.5 - Math.random()).slice(0, 5);
+    } else {
+        // Fallback to popular if search yields too few results
+        recsItems = safeArray(popularRes.data).slice(0, 5);
+    }
     
     if (recsItems.length > 0) {
         recsList.innerHTML = '';
@@ -2201,7 +2322,7 @@ async function renderSearch(query) {
                         <h4 class="recommendation-item-title">${escapeHtml(item.title)}</h4>
                         <div class="recommendation-meta">
                             <span>${escapeHtml(getAuthorName(item))}</span> • 
-                            <span>${formatDate(item.published_at || item.created_at)}</span>
+                            <span>${formatRelativeTime(item.published_at || item.created_at)}</span>
                         </div>
                     </div>
                 </div>
@@ -2227,13 +2348,13 @@ async function loadMoreSearchResults() {
 
     try {
         const query = AppState.searchQuery;
-        const currentOffset = AppState.searchOffset || 10;
+        const currentPage = AppState.searchPage || 2;
         const limit = 10;
 
         const res = await API.berita.list({
             q: query,
             limit: limit,
-            offset: currentOffset
+            page: currentPage
         });
 
         const newItems = safeArray(res.data);
@@ -2243,7 +2364,7 @@ async function loadMoreSearchResults() {
                 container.innerHTML += createBeritaUtamaItem(item, true); // true = show description
             });
             
-            AppState.searchOffset = currentOffset + limit;
+            AppState.searchPage = currentPage + 1;
             
             if (newItems.length < limit) {
                 AppState.hasMoreSearch = false;
@@ -2314,9 +2435,9 @@ function toggleSidePanel() {
 
 async function loadSidePanelNews() {
     try {
-        const [latestRes, popularRes] = await Promise.all([
+        const [latestRes, bongkarRes] = await Promise.all([
             API.berita.list({ limit: 3 }).catch(() => ({ data: [] })),
-            API.berita.populer({ limit: 5 }).catch(() => ({ data: [] }))
+            API.berita.list({ channel: 21, limit: 5 }).catch(() => ({ data: [] }))
         ]);
 
         // Render Latest News
@@ -2333,7 +2454,7 @@ async function loadSidePanelNews() {
                              onerror="this.src='https://placehold.co/120x80/eee/999?text=SinPo'">
                         <div class="sp-news-info">
                             <h4 class="sp-news-title">${escapeHtml(news.title)}</h4>
-                            <span class="sp-news-date">${formatDate(news.published_at || news.created_at)}</span>
+                            <span class="sp-news-date">${formatRelativeTime(news.published_at || news.created_at)}</span>
                         </div>
                     </div>
                 `).join('');
@@ -2344,7 +2465,7 @@ async function loadSidePanelNews() {
 
         // Render Popular News
         const popularContainer = document.getElementById('sp-popular-news');
-        const popularItems = safeArray(popularRes.data).slice(0, 5);
+        const popularItems = safeArray(bongkarRes.data).slice(0, 5);
         if (popularContainer) {
             if (popularItems.length > 0) {
                 popularContainer.innerHTML = popularItems.map((news, index) => `
@@ -2359,20 +2480,6 @@ async function loadSidePanelNews() {
         }
     } catch (error) {
         console.error('Error loading side panel news:', error);
-    }
-}
-
-function switchAuthTab(tab) {
-    const slides = document.getElementById('sp-auth-slides');
-    const tabs = document.querySelectorAll('.sp-auth-tab');
-    if (!slides || !tabs.length) return;
-
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-
-    if (tab === 'login') {
-        slides.style.transform = 'translateX(-50%)';
-    } else {
-        slides.style.transform = 'translateX(0)';
     }
 }
 
@@ -2400,7 +2507,6 @@ function initSidePanel() {
 
 // Make side panel functions global
 window.toggleSidePanel = toggleSidePanel;
-window.switchAuthTab = switchAuthTab;
 
 // ==========================================
 // APPLICATION INITIALIZATION
@@ -2487,7 +2593,7 @@ function createTrendingSection(newsList) {
                                     <h3 class="trending-item-title">${escapeHtml(news.title)}</h3>
                                     <div class="trending-meta">
                                         <span class="trending-author">${escapeHtml(getAuthorName(news).toUpperCase())}</span>
-                                        <span class="trending-date">${formatDate(news.published_at || news.created_at)}</span>
+                                        <span class="trending-date">${formatRelativeTime(news.published_at || news.created_at)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -2905,12 +3011,13 @@ window.playTvVideo = playTvVideo;
 window.initSinPoTV = initSinPoTV;
 window.retrySinPoTV = retrySinPoTV;
 
-function createMobilePopularItem(news, number) {
+function createMobilePopularItem(news, number, showCategory = true) {
+    const categoryHtml = showCategory ? `<span class="mobile-popular-category">${escapeHtml(formatCategoryName(news.category))}</span>` : '';
     return `
         <div class="mobile-popular-item" onclick="navigate('article', event, {id: ${news.id}})">
             <span class="mobile-popular-number">${number}</span>
             <div class="mobile-popular-content">
-                <span class="mobile-popular-category">${escapeHtml(formatCategoryName(news.category))}</span>
+                ${categoryHtml}
                 <h4 class="mobile-popular-title">${escapeHtml(news.title)}</h4>
                 <div class="mobile-popular-meta">
                     <span class="mobile-popular-time">${formatRelativeTime(news.published_at)}</span>
@@ -3131,16 +3238,16 @@ async function loadMoreBeritaUtama() {
     btn.disabled = true;
 
     try {
-        const fetchLimit = 20;
-        const currentOffset = AppState.beritaUtamaOffset || 20;
-
-        const res = await API.berita.list({
-            limit: fetchLimit,
-            offset: currentOffset
+        const fetchLimit = 20; 
+        const currentPage = AppState.beritaUtamaPage || 4; // since home loaded 60
+        
+        const res = await API.berita.list({ 
+            limit: fetchLimit, 
+            page: currentPage
         });
-
-        // Advance offset
-        AppState.beritaUtamaOffset = currentOffset + fetchLimit;
+        
+        // Advance page
+        AppState.beritaUtamaPage = currentPage + 1;
 
         const rawItems = safeArray(res.data);
         const newItems = filterSeenNews(rawItems).slice(0, 5);
@@ -3199,7 +3306,7 @@ function createBeritaUtamaItem(news, showDescription = false) {
                 <div class="berita-utama-meta">
                     <span>${escapeHtml(getAuthorName(news))}</span>
                     <span>•</span>
-                    <span>${formatDate(news.published_at || news.created_at)}</span>
+                    <span>${formatRelativeTime(news.published_at || news.created_at)}</span>
                 </div>
             </div>
         </div>
@@ -3213,23 +3320,31 @@ async function loadMoreCategoryItems() {
     if (!listContainer || !AppState.hasMoreCategory) return;
 
     if (loadBtn) {
-        const originalText = loadBtn.innerText;
         loadBtn.innerHTML = '<div class="btn-spinner"></div> Memuat...';
         loadBtn.disabled = true;
     }
 
+    // Add global fetching state protection
+    if (AppState.isFetchingCategory) return;
+    
     try {
+        AppState.isFetchingCategory = true;
         const fetchLimit = 24; // Fetch more to find unique items
-        const currentOffset = AppState.categoryOffset;
-
-        const res = await API.berita.list({ 
-            kategori: AppState.currentCategoryId, 
-            limit: fetchLimit, 
-            offset: currentOffset 
-        });
+        const currentPage = AppState.categoryPage || 2;
         
-        // Advance offset
-        AppState.categoryOffset = currentOffset + fetchLimit;
+        const queryParams = { limit: fetchLimit, page: currentPage };
+        if (AppState.isCurrentQueryIndex) {
+            // No channel or category filter for index
+        } else if (AppState.isCurrentQueryChannel) {
+            queryParams.channel = AppState.currentCategoryId;
+        } else {
+            queryParams.kategori = AppState.currentCategoryId;
+        }
+        
+        const res = await API.berita.list(queryParams);
+        
+        // Advance page
+        AppState.categoryPage = currentPage + 1;
 
         const rawItems = safeArray(res.data);
         const newItems = filterSeenNews(rawItems).slice(0, 12); // Take only 12 unique
@@ -3269,5 +3384,7 @@ async function loadMoreCategoryItems() {
              loadBtn.innerText = 'Coba lagi';
              loadBtn.disabled = false;
         }
+    } finally {
+        AppState.isFetchingCategory = false;
     }
 }
