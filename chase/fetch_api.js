@@ -28,3 +28,10 @@ async function main() {
 }
 
 main();
+
+// { id: 7, judul: 'Redaksi' },
+// { id: 9, judul: 'Kontak Kami' },
+// { id: 10, judul: 'Tentang Kami' },
+// { id: 8, judul: 'Disclaimer' },
+// { id: 11, judul: 'Privacy Policy' },
+// { id: 12, judul: 'Pedoman Pemberitaan Media Siber' }
