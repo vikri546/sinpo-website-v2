@@ -1220,7 +1220,31 @@ body.dark-mode .menu-btn {
 /* ==========================================
    LOADING & ERROR STATES
    ========================================== */
-/* Full Screen Loading Overlay */
+/* Full Screen Loading Overlay for Initial App Load */
+.global-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+}
+
+body.dark-mode .global-loader {
+  background: var(--color-black);
+}
+
+.global-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Inline Loading Overlay */
 .loading {
   min-height: 80vh;
   display: flex;

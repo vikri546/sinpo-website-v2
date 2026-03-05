@@ -908,8 +908,19 @@ function showLoading() {
 
 function hideLoading() {
     document.body.classList.remove('is-loading');
-    // We don't need to clear innerHTML here because render functions usually overwrite it
-    // But we should ensure the .loading element is gone if it was appended (here we overwrite app.innerHTML so it's fine)
+    
+    // Hide global loader if it exists (only on initial load)
+    const globalLoader = document.getElementById('global-loader');
+    if (globalLoader && !globalLoader.classList.contains('hidden')) {
+        globalLoader.classList.add('hidden');
+        
+        // Optionally remove it from DOM after transition
+        setTimeout(() => {
+            if (globalLoader.parentNode) {
+                globalLoader.parentNode.removeChild(globalLoader);
+            }
+        }, 500);
+    }
 }
 
 function showError(message) {
@@ -3460,4 +3471,14 @@ async function loadMoreCategoryItems() {
     } finally {
         AppState.isFetchingCategory = false;
     }
+}
+
+import { logEvent } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
+
+// Call this when an article is opened
+function trackArticleView(articleId, articleTitle) {
+    logEvent(analytics, 'article_view', {
+        item_id: articleId,
+        item_name: articleTitle
+    });
 }
