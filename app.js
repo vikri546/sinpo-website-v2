@@ -64,13 +64,18 @@ function filterSeenNews(items) {
 // API REQUEST HANDLER
 // ==========================================
 async function apiRequest(endpoint, options = {}) {
+    const TIMEOUT_MS = options.timeout || 15000; // 15 second default timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
     try {
         const config = {
             method: options.method || 'GET',
             headers: {
                 ...API_CONFIG.HEADERS,
                 ...(options.headers || {})
-            }
+            },
+            signal: controller.signal
         };
 
         // Add body if present
@@ -106,12 +111,18 @@ async function apiRequest(endpoint, options = {}) {
         
         return result;
     } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error('API Timeout:', endpoint);
+            return { success: false, data: null, message: 'Request timeout' };
+        }
         console.error('API Error:', error);
         return { 
             success: false, 
             data: null, 
             message: error.message 
         };
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
@@ -863,6 +874,25 @@ async function renderPage(page, params) {
     // Initial Date Update
     setTimeout(updateDateDisplay, 100);
 
+    // Safety timeout: guarantee loader hides after 20s max
+    const safetyTimeout = setTimeout(() => {
+        console.warn('⚠️ Safety timeout: hiding loader after 20s');
+        hideLoading();
+        const currentApp = document.getElementById('app');
+        if (currentApp && (currentApp.querySelector('.loading') || currentApp.innerHTML.trim() === '')) {
+            currentApp.innerHTML = `
+                <div class="container error-container">
+                    <div class="error-icon">⏳</div>
+                    <h2 class="error-title">Memuat Terlalu Lama</h2>
+                    <p class="error-message">Server sedang sibuk. Silakan coba lagi.</p>
+                    <button class="btn btn-primary" onclick="window.location.reload()">
+                        Muat Ulang
+                    </button>
+                </div>
+            `;
+        }
+    }, 20000);
+
     try {
         switch (page) {
             case 'home':
@@ -890,6 +920,7 @@ async function renderPage(page, params) {
         console.error('Render error:', error);
         showError('Terjadi kesalahan saat memuat halaman. Silakan coba lagi.');
     } finally {
+        clearTimeout(safetyTimeout);
         // Ensure loading is hidden after everything is done
         hideLoading();
     }
@@ -3473,12 +3504,17 @@ async function loadMoreCategoryItems() {
     }
 }
 
-import { logEvent } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-
 // Call this when an article is opened
-function trackArticleView(articleId, articleTitle) {
-    logEvent(analytics, 'article_view', {
-        item_id: articleId,
-        item_name: articleTitle
-    });
+async function trackArticleView(articleId, articleTitle) {
+    try {
+        const { logEvent } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js");
+        if (typeof analytics !== 'undefined') {
+            logEvent(analytics, 'article_view', {
+                item_id: articleId,
+                item_name: articleTitle
+            });
+        }
+    } catch (e) {
+        console.warn('Analytics tracking unavailable:', e.message);
+    }
 }
