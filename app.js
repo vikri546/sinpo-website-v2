@@ -879,7 +879,7 @@ async function renderPage(page, params) {
         console.warn('⚠️ Safety timeout: hiding loader after 20s');
         hideLoading();
         const currentApp = document.getElementById('app');
-        if (currentApp && (currentApp.querySelector('.loading') || currentApp.innerHTML.trim() === '')) {
+        if (currentApp && currentApp.innerHTML.trim() === '') {
             currentApp.innerHTML = `
                 <div class="container error-container">
                     <div class="error-icon">⏳</div>
@@ -929,12 +929,7 @@ async function renderPage(page, params) {
 function showLoading() {
     const app = document.getElementById('app');
     document.body.classList.add('is-loading');
-    
-    app.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-        </div>
-    `;
+    app.innerHTML = '';
 }
 
 function hideLoading() {

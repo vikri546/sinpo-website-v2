@@ -6345,7 +6345,9 @@ body.dark-mode .header-divider-thin {
 .image-info-row {
     display: flex;
     justify-content: space-between;
-    align-items: stretch; /* Allow label to stretch if needed */
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
     margin-top: 0.5rem;
     font-size: 0.8rem;
     color: var(--color-gray-600);
@@ -6359,6 +6361,9 @@ body.dark-mode .image-info-row {
     display: flex;
     align-items: center;
     font-style: italic;
+    flex-shrink: 1;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .category-badge-detail {
@@ -6368,17 +6373,11 @@ body.dark-mode .image-info-row {
     font-weight: 700;
     text-transform: uppercase;
     display: inline-block;
-    text-align: right; /* teks di dalam badge rata kanan */
-}
-
-/* On mobile, we might need to handle the negative margin differently if container has padding */
-@media (max-width: 768px) {
-    .category-badge-detail {
-        max-width: calc(100vw - 3rem); /* Ensure it doesn't overflow */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin-left: auto;
 }
 
 .author-meta-new {
