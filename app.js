@@ -64,66 +64,91 @@ function filterSeenNews(items) {
 // API REQUEST HANDLER
 // ==========================================
 async function apiRequest(endpoint, options = {}) {
-    const TIMEOUT_MS = options.timeout || 15000; // 15 second default timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const TIMEOUT_MS = options.timeout || 60000; // 60 second default timeout (API can be slow)
+    const MAX_RETRIES = options.retries !== undefined ? options.retries : 2;
+    const BASE_DELAY = 2000; // 2 second base delay for exponential backoff
 
-    try {
-        const config = {
-            method: options.method || 'GET',
-            headers: {
-                ...API_CONFIG.HEADERS,
-                ...(options.headers || {})
-            },
-            signal: controller.signal
-        };
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        // Add body if present
-        if (options.body) {
-            if (options.body instanceof FormData) {
-                // Don't set Content-Type for FormData, browser will set it with boundary
-                config.body = options.body;
-                delete config.headers['Content-Type'];
-            } else {
-                config.headers['Content-Type'] = 'application/json';
-                config.body = JSON.stringify(options.body);
+        try {
+            const config = {
+                method: options.method || 'GET',
+                headers: {
+                    ...API_CONFIG.HEADERS,
+                    ...(options.headers || {})
+                },
+                mode: 'cors',
+                signal: controller.signal
+            };
+
+            // Add body if present
+            if (options.body) {
+                if (options.body instanceof FormData) {
+                    // Don't set Content-Type for FormData, browser will set it with boundary
+                    config.body = options.body;
+                    delete config.headers['Content-Type'];
+                } else {
+                    config.headers['Content-Type'] = 'application/json';
+                    config.body = JSON.stringify(options.body);
+                }
             }
-        }
 
-        const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-        const response = await fetch(url, config);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        // Check if API returned success: false
-        if (result.success === false) {
-            throw new Error(result.message || 'Request failed');
-        }
+            const url = `${API_CONFIG.BASE_URL}${endpoint}`;
+            const response = await fetch(url, config);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            // Check if API returned success: false
+            if (result.success === false) {
+                throw new Error(result.message || 'Request failed');
+            }
 
-        // Apply mapping if type is specified
-        if (result.data && options.type) {
-            result.data = mapGeneric(result.data, options.type);
+            // Apply mapping if type is specified
+            if (result.data && options.type) {
+                result.data = mapGeneric(result.data, options.type);
+            }
+            
+            return result;
+        } catch (error) {
+            clearTimeout(timeoutId);
+
+            const isLastAttempt = attempt >= MAX_RETRIES;
+
+            if (error.name === 'AbortError') {
+                console.warn(`API Timeout (attempt ${attempt + 1}/${MAX_RETRIES + 1}):`, endpoint);
+                if (isLastAttempt) {
+                    console.error('API Timeout after all retries:', endpoint);
+                    return { success: false, data: null, message: 'Request timeout' };
+                }
+            } else {
+                console.warn(`API Error (attempt ${attempt + 1}/${MAX_RETRIES + 1}):`, error.message);
+                if (isLastAttempt) {
+                    console.error('API Error after all retries:', error);
+                    return { 
+                        success: false, 
+                        data: null, 
+                        message: error.message 
+                    };
+                }
+            }
+
+            // Exponential backoff before retry
+            const delay = BASE_DELAY * Math.pow(2, attempt);
+            console.log(`Retrying in ${delay / 1000}s...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        } finally {
+            clearTimeout(timeoutId);
         }
-        
-        return result;
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error('API Timeout:', endpoint);
-            return { success: false, data: null, message: 'Request timeout' };
-        }
-        console.error('API Error:', error);
-        return { 
-            success: false, 
-            data: null, 
-            message: error.message 
-        };
-    } finally {
-        clearTimeout(timeoutId);
     }
+
+    // Fallback (should not reach here)
+    return { success: false, data: null, message: 'Request failed' };
 }
 
 // ==========================================
@@ -874,9 +899,9 @@ async function renderPage(page, params) {
     // Initial Date Update
     setTimeout(updateDateDisplay, 100);
 
-    // Safety timeout: guarantee loader hides after 20s max
+    // Safety timeout: guarantee loader hides after 90s max (allows for API retries)
     const safetyTimeout = setTimeout(() => {
-        console.warn('⚠️ Safety timeout: hiding loader after 20s');
+        console.warn('⚠️ Safety timeout: hiding loader after 90s');
         hideLoading();
         const currentApp = document.getElementById('app');
         if (currentApp && currentApp.innerHTML.trim() === '') {
@@ -891,7 +916,7 @@ async function renderPage(page, params) {
                 </div>
             `;
         }
-    }, 20000);
+    }, 90000);
 
     try {
         switch (page) {
